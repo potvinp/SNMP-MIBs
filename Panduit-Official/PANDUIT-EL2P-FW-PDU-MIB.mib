@@ -1,0 +1,4497 @@
+-- ***********************************************************************
+--   Copyright(C) 2025 Panduit
+--   Panduit PDU SNMP MIB DEFINITIONS
+-- ***********************************************************************
+
+-- =======================================================================
+PANDUIT-PDU-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    TEXTUAL-CONVENTION, RowStatus, DisplayString, DateAndTime, AutonomousType, TruthValue, TimeStamp
+	FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+	FROM SNMPv2-CONF
+    Integer32, Unsigned32, enterprises, MODULE-IDENTITY, NOTIFICATION-TYPE, OBJECT-IDENTITY, OBJECT-TYPE
+	FROM SNMPv2-SMI
+    ;
+
+panduitPdu MODULE-IDENTITY
+    LAST-UPDATED "202503271200Z"  -- 27 March 2025
+    ORGANIZATION "Panduit"
+    CONTACT-INFO "Panduit
+        Postal:     Panduit
+                    18900 Panduit Drive
+                    Tinley Park, IL 60487
+                    USA
+
+        Tel:        +1 708 532-1800/888-506-5400
+        E-mail:     systemsupport@panduit.com"
+    DESCRIPTION
+        "Panduit PDU"
+
+    REVISION "202503271200Z"  -- 27 March 2025
+    DESCRIPTION
+        "Adjust alarms"
+
+    REVISION "202501011200Z"  -- 01 January 2025
+    DESCRIPTION
+        "Inital Release"
+
+    ::= { panduit 16}
+--
+-- Textual Conventions
+--
+
+Voltage ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for Voltage in 0.1 V"
+    SYNTAX      Integer32
+
+Current ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-2"
+    STATUS current
+    DESCRIPTION "The values for Current in 0.01 A"
+    SYNTAX      Integer32
+
+Wattage ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for Power in 0.1 W"
+    SYNTAX      Integer32
+
+VoltAmps ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for Apperent Power in 0.1 VA"
+    SYNTAX      Integer32
+
+VoltAmpsReactive ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for VAR in 0.1 VA"
+    SYNTAX      Integer32
+
+Hertz ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for Frequency in 0.1 Hz"
+    SYNTAX      Integer32
+
+Energy ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "Energy in 0.1 kWh"
+    SYNTAX Integer32
+
+Percentage ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for The percentage in 0.1 percentage points."
+    SYNTAX      Integer32
+
+EnabledState ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The values for EnabledState"
+    SYNTAX      INTEGER { enabled(1), disabled(2) }
+
+ActiveStatus ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The values for ActiveStatus"
+    SYNTAX      INTEGER { active(1), inactive(2) }
+
+StateOnStartup ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The values for StateOnStartup"
+    SYNTAX      INTEGER { off(1), on(2), last(3) }
+
+PowerControl ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The values for PowerControl"
+    SYNTAX      INTEGER { offOrderly(1), off(2), offDelayed(3), rebootOrderly(4), rebootDelayed(5), rebootImmediately(6), on(7), onDelayed(8) }
+
+PduType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The type of PDU"
+    SYNTAX      INTEGER { monitoredInput(1), monitoredSwitched(2), monitoredPerOutlet(3), monitoredAndSwitchedPerOutlet(4) }
+
+PduCordType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The cord type of PDU"
+    SYNTAX      INTEGER { nema515P(1), nema520P(2), nemaL520P(3), nemaL530P(4), nemaL620P(5), nemaL630P(6), cs8265C(7), iec603092PE6h16A(8), iec603092PE6h32A(9), iec603092PE6h63A(10), nemaL1530P(11), iec603093PE9h60A(12), cs8365C(13), iec603093PNE6h16A(14), iec603093PNE6h32A(15), iec603093PNE6h60A(16), l2130P(17) }
+
+PduRegion ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The PDU region."
+    SYNTAX      INTEGER { northAmerica(1), emea(2) }
+
+PduInputType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The input type of PDU"
+    SYNTAX      INTEGER { singlePhase(1), delta(2), wye(3) }
+
+PduOutputVoltageType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The outlet voltage type of PDU"
+    SYNTAX      INTEGER { lineToLine(1), lineToNeutral(2) }
+
+PhaseMeasurementType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The measurement type of PDU"
+    SYNTAX      INTEGER { singlePhase(1), lineToLine(2), lineToNeutral(3) }
+
+GroupType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The type of breaker"
+    SYNTAX      INTEGER { virtual(1), singlePole(2), doublePole(3) }
+
+BreakerState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Breaker sensor state."
+    SYNTAX      INTEGER { closed(1), open(2) }
+
+OutletType  ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Outlet type."
+    SYNTAX      INTEGER { c13(1), c19(2), c13c15(3), c13c15c19(4), nema515R(5), nema520R(6) }
+
+PhaseWireType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Phase wiring type."
+    SYNTAX      INTEGER { oneOrTwoPhase3(1), onePhase3(2), threePhase4(3), threePhase5(4), twoPhase3(5), twoPhase4(6)}
+
+NominalVoltage ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Nominal voltage."
+    SYNTAX      INTEGER { ac100To127V(1), ac100To240V(2), ac100To277V(3), ac120V(4), ac200To240V(5), ac200To277V(6), ac208V(7), ac230V(8), ac240AndDC380V(9), ac240V(10), ac277AndDC380V(11), ac277V(12), ac400V(13), ac480V(14), dc12V(15), dc16V(16), dc18V(17), dc240V(18), dc380V(19), dc33V(20), dc48V(21), dc5V(22), dc9V(23), dcNeg48V(24) }
+
+ResetOperation ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Context for reseting attributes on the PDU."
+    SYNTAX      INTEGER { noOperation(1), reset(2) }
+
+panduit                  OBJECT IDENTIFIER       ::= { enterprises 19536 }
+
+-- ***********************************************************************
+-- Well known alarm conditions.
+-- ***********************************************************************
+
+panduitCmnAlarm                 OBJECT IDENTIFIER       ::= { panduit 13 }
+panduitCmnAlarms                OBJECT IDENTIFIER       ::= { panduitCmnAlarm 1 }
+panduitCmnAlarmDescriptions     OBJECT IDENTIFIER       ::= { panduitCmnAlarm 2 }
+panduitCmnAlarmTraps            OBJECT IDENTIFIER       ::= { panduitCmnAlarm 3 }
+panduitCmnAlarmConformance      OBJECT IDENTIFIER       ::= { panduitCmnAlarm 4 }
+--
+-- Textual Conventions
+--
+
+AlarmSeverityLevel ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Represents how severe the condition is (see ITU X.733)"
+    SYNTAX      INTEGER { cleared(1), informational(2), warning(3), minor(4), major(5), critical(6) }
+
+
+-- =======================================================================
+--     panduitCmnAlarm
+-- =======================================================================
+
+panduitCmnAlarmCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Number of Active Alarms in system"
+    ::= { panduitCmnAlarms 1 }
+
+panduitCmnAlarmSeveritySummary OBJECT-TYPE
+    SYNTAX      AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The highest level severity of all active alarms"
+    ::= { panduitCmnAlarms 2 }
+
+panduitCmnAlarmTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitCmnAlarmEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Table of Active Alarms"
+    ::= { panduitCmnAlarms 3 }
+
+panduitCmnAlarmEntry OBJECT-TYPE
+    SYNTAX PanduitCmnAlarmEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The entry containing information applicable to an alarm"
+    INDEX { panduitCmnAlarmId }
+    ::= { panduitCmnAlarmTable 1 }
+
+PanduitCmnAlarmEntry ::= SEQUENCE {
+        panduitCmnAlarmId                       Unsigned32,
+        panduitCmnAlarmEntity                   AutonomousType,
+        panduitCmnAlarmDescr                    AutonomousType,
+        panduitCmnAlarmSeverity                 AlarmSeverityLevel,
+        panduitCmnAlarmText                     DisplayString,
+        panduitCmnAlarmTime                     TimeStamp
+    }
+
+panduitCmnAlarmId OBJECT-TYPE
+    SYNTAX Unsigned32
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION "Unique identifier for an alarm condition"
+    ::= { panduitCmnAlarmEntry 1 }
+
+panduitCmnAlarmEntity OBJECT-TYPE
+    SYNTAX AutonomousType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "A reference to the entity object that the alarm condition is raised against"
+    ::= { panduitCmnAlarmEntry 2 }
+
+panduitCmnAlarmDescr OBJECT-TYPE
+    SYNTAX AutonomousType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "A reference to the alarm description object."
+    ::= { panduitCmnAlarmEntry 3 }
+
+panduitCmnAlarmSeverity OBJECT-TYPE
+    SYNTAX      AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Indicates how severely this impacts the operation of the system"
+    ::= { panduitCmnAlarmEntry 4 }
+
+panduitCmnAlarmText OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "Additional text regarding the alarm"
+    ::= { panduitCmnAlarmEntry 5 }
+
+panduitCmnAlarmTime OBJECT-TYPE
+    SYNTAX TimeStamp
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The value of sysUpTime when the alarm condition was detected"
+    ::= { panduitCmnAlarmEntry 6 }
+--
+-- Begin Descriptions
+--
+
+panduitCmnAlarmTestTrap OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting a test trap."
+    ::= { panduitCmnAlarmDescriptions 1 }
+
+panduitCmnAlarmUserLoggedIn OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A user has logged into the device."
+    ::= { panduitCmnAlarmDescriptions 2 }
+
+panduitCmnAlarmUserLoggedOut OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A user has logged out from the device."
+    ::= { panduitCmnAlarmDescriptions 3 }
+
+panduitCmnAlarmUserAuthFailed OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A user attempted to login, but did not pass authentication."
+    ::= { panduitCmnAlarmDescriptions 4 }
+
+panduitCmnAlarmUserSessionTimeout OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A user was logged out due to inactivity."
+    ::= { panduitCmnAlarmDescriptions 5 }
+
+panduitCmnAlarmUserBlocked OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A user was blocked due to excessive login failures."
+    ::= { panduitCmnAlarmDescriptions 6 }
+
+panduitCmnAlarmUpgradeStarted OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A firmware upgrade was initiated"
+    ::= { panduitCmnAlarmDescriptions 7 }
+
+panduitCmnAlarmUpgradeComplete OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A firmware upgrade successfully completed"
+    ::= { panduitCmnAlarmDescriptions 8 }
+
+panduitCmnAlarmUpgradeFailed OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A firmware upgrade failed"
+    ::= { panduitCmnAlarmDescriptions 9 }
+
+panduitCmnAlarmEventLogsCleared OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The event logs were cleared"
+    ::= { panduitCmnAlarmDescriptions 10 }
+
+panduitCmnAlarmDataLogsCleared OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The data logs were cleared"
+    ::= { panduitCmnAlarmDescriptions 11 }
+
+panduitCmnAlarmConfigChanged OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "Configuration was changed"
+    ::= { panduitCmnAlarmDescriptions 12 }
+
+panduitCmnAlarmModuleMissing OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity has gone missing."
+    ::= { panduitCmnAlarmDescriptions  13 }
+
+panduitCmnAlarmInternalFailure OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting an internal failure."
+    ::= { panduitCmnAlarmDescriptions  14 }
+
+panduitCmnAlarmInputVoltage OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the input voltage is out of range."
+    ::= { panduitCmnAlarmDescriptions  15 }
+
+panduitCmnAlarmInputCurrent OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the input current is out of range."
+    ::= { panduitCmnAlarmDescriptions  16 }
+
+panduitCmnAlarmInputPower OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the input power is out of range."
+    ::= { panduitCmnAlarmDescriptions  17 }
+
+panduitCmnAlarmInputFrequency OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the input frequency is out of range."
+    ::= { panduitCmnAlarmDescriptions  18 }
+
+panduitCmnAlarmOutputVoltage OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the output voltage is out of range."
+    ::= { panduitCmnAlarmDescriptions  19 }
+
+panduitCmnAlarmOutputPower OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the output power is out of range."
+    ::= { panduitCmnAlarmDescriptions  20 }
+
+panduitCmnAlarmTemperature OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the temperature is out of range."
+    ::= { panduitCmnAlarmDescriptions  21 }
+
+panduitCmnAlarmPhaseUnbalanced OBJECT-IDENTITY
+   STATUS     current
+   DESCRIPTION
+       "The three phase systems phases are unbalanced."
+   ::= { panduitCmnAlarmDescriptions 22 }
+
+panduitCmnAlarmInputActivePower OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the input active power is out of range."
+    ::= { panduitCmnAlarmDescriptions  23 }
+
+panduitCmnAlarmInputAppPower OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the input apparent power is out of range."
+    ::= { panduitCmnAlarmDescriptions  24 }
+
+panduitCmnAlarmOutputActivePower OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The entity is reporting the output active power is out of range."
+    ::= { panduitCmnAlarmDescriptions  25 }
+--
+-- End Descriptions
+--
+--
+-- Notifications
+--
+panduitCmnAlarmTrapsPrefix                  OBJECT IDENTIFIER       ::= { panduitCmnAlarmTraps 0 }
+
+panduitCmnTrapAlarmEntryAdded NOTIFICATION-TYPE
+    OBJECTS {
+        panduitCmnAlarmId,
+        panduitCmnAlarmEntity,
+        panduitCmnAlarmDescr,
+        panduitCmnAlarmText,
+        panduitCmnAlarmSeverity }
+    STATUS current
+    DESCRIPTION "This trap is sent each time an alarm is inserted into the alarm table"
+    ::= { panduitCmnAlarmTrapsPrefix 1 }
+
+panduitCmnTrapAlarmEntryRemoved NOTIFICATION-TYPE
+    OBJECTS {
+        panduitCmnAlarmId,
+        panduitCmnAlarmEntity,
+        panduitCmnAlarmDescr,
+        panduitCmnAlarmText,
+        panduitCmnAlarmSeverity }
+    STATUS current
+    DESCRIPTION "This trap is sent each time an alarm is removed from the alarm table"
+    ::= { panduitCmnAlarmTrapsPrefix 2 }
+
+panduitCmnTrapEvent NOTIFICATION-TYPE
+    OBJECTS {
+        panduitCmnAlarmEntity,
+        panduitCmnAlarmDescr,
+        panduitCmnAlarmText,
+        panduitCmnAlarmSeverity }
+    STATUS current
+    DESCRIPTION "This trap is sent when an event occurs. No alarm is entered in the table
+        as the event is not a persistent condition"
+    ::= { panduitCmnAlarmTrapsPrefix 3 }
+
+
+
+--
+-- Conformance
+--
+panduitCmnAlarmCompliances   OBJECT IDENTIFIER ::= { panduitCmnAlarmConformance 1 }
+panduitCmnAlarmGroups        OBJECT IDENTIFIER ::= { panduitCmnAlarmConformance 2 }
+
+panduitCmnAlarmFullCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION "Compilance statement"
+    MODULE
+        MANDATORY-GROUPS {
+            panduitCmnAlarmGroup,
+            panduitCmnAlarmTrapGroup }
+    ::= { panduitCmnAlarmCompliances 1 }
+
+panduitCmnAlarmGroup OBJECT-GROUP
+    OBJECTS {
+        panduitCmnAlarmId,
+        panduitCmnAlarmCount,
+        panduitCmnAlarmSeveritySummary,
+        panduitCmnAlarmEntity,
+        panduitCmnAlarmDescr,
+        panduitCmnAlarmSeverity,
+        panduitCmnAlarmText,
+        panduitCmnAlarmTime
+    }
+    STATUS current
+    DESCRIPTION
+        "the panduitCmnAlarmGroup identifies objects which aid in observing
+        the alarms on the system"
+    ::= { panduitCmnAlarmGroups 1 }
+
+panduitCmnAlarmTrapGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        panduitCmnTrapAlarmEntryAdded,
+        panduitCmnTrapAlarmEntryRemoved,
+        panduitCmnTrapEvent
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitCmnpTrapGroup identifies notifications which are supported"
+    ::= { panduitCmnAlarmGroups 2}
+--
+-- panduitPdu Monitored Managed object identifiers
+--
+panduitPduObjects            OBJECT IDENTIFIER       ::= { panduitPdu 1 }
+panduitPduConformance        OBJECT IDENTIFIER       ::= { panduitPdu 2 }
+panduitPduSystem             OBJECT IDENTIFIER       ::= { panduitPduObjects 1 }
+panduitPduUnit               OBJECT IDENTIFIER       ::= { panduitPduObjects 2 }
+panduitPduInput              OBJECT IDENTIFIER       ::= { panduitPduObjects 3 }
+panduitPduPhase              OBJECT IDENTIFIER       ::= { panduitPduObjects 4 }
+panduitPduGroup              OBJECT IDENTIFIER       ::= { panduitPduObjects 5 }
+panduitPduOutlets            OBJECT IDENTIFIER       ::= { panduitPduObjects 6 }
+panduitPduAlarmDescriptions  OBJECT IDENTIFIER       ::= { panduitPduObjects 8 }
+
+-- =======================================================================
+--  panduitPduObjects
+-- =======================================================================
+--  panduitPduSystem
+-- =======================================================================
+-- ***********************************************************************
+-- panduitPduSystemIdent
+-- ***********************************************************************
+panduitPduSystemIdent   OBJECT IDENTIFIER       ::= { panduitPduSystem 1}
+
+panduitPduSystemName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The name of the PDU System."
+    ::= { panduitPduSystemIdent 1 }
+
+panduitPduCount OBJECT-TYPE
+    SYNTAX Integer32 (1..64)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The number of PDUs in system."
+    ::= { panduitPduSystemIdent 2 }
+
+-- ***********************************************************************
+-- panduitPduSystemControl
+-- ***********************************************************************
+panduitPduSystemControl OBJECT IDENTIFIER       ::= { panduitPduSystem 3}
+
+panduitPduHttpEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "When set to enabled(1), HTTP connection will be allowed. When set to
+         disabled(2) all HTTP traffic with be blocked."
+    ::= { panduitPduSystemControl 1 }
+
+panduitPduHttpPort OBJECT-TYPE
+    SYNTAX Integer32 (0..65535)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The port number to use for HTTP communication."
+    ::= { panduitPduSystemControl 2 }
+
+panduitPduHttpsEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "When set to enabled(1), HTTPS connection will be allowed. When set to
+         disabled(2) all HTTPS traffic with be blocked."
+    ::= { panduitPduSystemControl 3 }
+
+panduitPduHttpsPort OBJECT-TYPE
+    SYNTAX Integer32 (0..65535)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The port number to use for HTTPS communication."
+    ::= { panduitPduSystemControl 4 }
+
+panduitPduSshEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "When set to enabled(1), SSH connection will be allowed. When set to
+         disabled(2) all SSH traffic with be blocked."
+    ::= { panduitPduSystemControl 5 }
+
+panduitPduSshPort OBJECT-TYPE
+    SYNTAX Integer32 (0..65535)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The port number to use for SSH communication."
+    ::= { panduitPduSystemControl 6 }
+
+panduitPduEnergyResetAll OBJECT-TYPE
+    SYNTAX ResetOperation
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Setting this OID to reset(2) will cause the the energy meter value on
+         all units to be reset to zero. Getting this OID in models that support
+         this feature will do nothing and return the noOperation(1) value."
+    ::= {panduitPduSystemControl 7}
+
+panduitPduOutletControlState OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "When set to enabled(1), outlet control is enabled. When set to disabled(2) outlet control is disabled."
+    ::= { panduitPduSystemControl 8 }
+
+
+-- =======================================================================
+--  panduitPduUnit
+-- =======================================================================
+--  panduitPduUnitIdent
+-- ***********************************************************************
+panduitPduIdentTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the PDU in the daisy chain."
+    ::= { panduitPduUnit 1 }
+
+panduitPduIdentEntry OBJECT-TYPE
+    SYNTAX PanduitPduIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The identification table containing the information of the PDU."
+    INDEX { panduitPduIndex }
+    ::= { panduitPduIdentTable 1 }
+
+PanduitPduIdentEntry ::= SEQUENCE {
+        panduitPduIndex                           Integer32,
+        panduitPduName                            DisplayString,
+        panduitPduManufacturer                    DisplayString,
+        panduitPduBuildDate                       DateAndTime,
+        panduitPduPartNumber                      DisplayString,
+        panduitPduSerialNum                       DisplayString,
+        panduitPduHwVersion                       DisplayString,
+        panduitPduNmcFwVersion                    DisplayString,
+        panduitPduNmcFwVersionTimeStamp           DateAndTime,
+        panduitPduNmcPartNumber                   DisplayString,
+        panduitPduNmcSerialNumber                 DisplayString,
+        panduitPduNmcHardwareVersion              DisplayString,
+        panduitPduNmcModel                        DisplayString,
+        panduitPduType                            PduType,
+        panduitPduCordType                        PduCordType,
+        panduitPduRegion                          PduRegion,
+        panduitPduInputPhaseCount                 Integer32,
+        panduitPduGroupCount                      Integer32,
+        panduitPduOutletCount                     Integer32,
+        panduitPduRowStatus                       RowStatus
+    }
+
+panduitPduIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..64)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Index for the panduitPduIdentEntry table."
+    ::= { panduitPduIdentEntry 1 }
+
+panduitPduName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The name of the PDU."
+    ::= { panduitPduIdentEntry 2 }
+
+panduitPduManufacturer OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..31))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The name of the manufacturer of the PDU."
+    ::= { panduitPduIdentEntry 3 }
+
+panduitPduBuildDate OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The build date of the PDU."
+    ::= { panduitPduIdentEntry 4 }
+
+panduitPduPartNumber OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..20))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The part number of the PDU."
+    ::= { panduitPduIdentEntry 5 }
+
+panduitPduSerialNum OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The serial Number of the PDU."
+    ::= { panduitPduIdentEntry 6 }
+
+panduitPduHwVersion OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..31))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The hardware version of the PDU."
+    ::= { panduitPduIdentEntry 7 }
+
+panduitPduNmcFwVersion OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..31))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The firmware version of the PDU."
+    ::= { panduitPduIdentEntry 8 }
+
+panduitPduNmcFwVersionTimeStamp OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The build date of the firmware of the PDU."
+    ::= { panduitPduIdentEntry 9 }
+
+panduitPduNmcPartNumber OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..20))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The part number of the PDU."
+    ::= { panduitPduIdentEntry 10 }
+
+panduitPduNmcSerialNumber OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The serial Number of the PDU."
+    ::= { panduitPduIdentEntry 11 }
+
+panduitPduNmcHardwareVersion OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..31))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The hardware version of the PDU."
+    ::= { panduitPduIdentEntry 12 }
+
+panduitPduNmcModel OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..20))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The model number of the NMC."
+    ::= { panduitPduIdentEntry 13 }
+
+panduitPduType OBJECT-TYPE
+    SYNTAX PduType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The PDU type. Valid values MonitoredInput(1), MonitoredSwitched(2),
+         MonitoredPerOutlet(3), MonitoredAndSwitchedPerOutlet(4)"
+    ::= { panduitPduIdentEntry 14 }
+
+panduitPduCordType OBJECT-TYPE
+    SYNTAX PduCordType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The PDU cord type."
+    ::= { panduitPduIdentEntry 15 }
+
+panduitPduRegion OBJECT-TYPE
+    SYNTAX PduRegion
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The PDU region. northAmerica(1), emea(2)"
+    ::= { panduitPduIdentEntry 16 }
+
+panduitPduInputPhaseCount OBJECT-TYPE
+    SYNTAX Integer32 (1 | 3)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The number of input phases on this PDU 1 or 3."
+    ::= { panduitPduIdentEntry 17 }
+
+panduitPduGroupCount OBJECT-TYPE
+    SYNTAX Integer32 (0..15)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The number of groups (breakers) on this PDU."
+    ::= { panduitPduIdentEntry 18 }
+
+panduitPduOutletCount OBJECT-TYPE
+    SYNTAX Integer32 (1..48)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The number of outlets in this PDU."
+     ::= { panduitPduIdentEntry 19 }
+
+panduitPduRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "The RowStatus is used to manage the deletion
+        of rows in the table for PDUs that
+        no longer exist. If the PDU is still detected
+        by the system, the row cannot be deleted. Rows
+        cannot be created via the MIB. They can only be created
+        by when a PDU is detected by the system"
+    ::= { panduitPduIdentEntry 20 }
+
+-- ***********************************************************************
+-- panduitPduDataEntry
+-- ***********************************************************************
+panduitPduDataTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the PDU."
+    ::= { panduitPduUnit 2 }
+
+panduitPduDataEntry OBJECT-TYPE
+    SYNTAX PanduitPduDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The data table containing the PDU information."
+    AUGMENTS { panduitPduIdentEntry }
+    ::= { panduitPduDataTable 1 }
+
+PanduitPduDataEntry ::= SEQUENCE {
+        panduitPduStatus                      AlarmSeverityLevel
+    }
+
+panduitPduStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the highest severity alarm on the PDU"
+    ::= { panduitPduDataEntry 1 }
+
+-- =======================================================================
+--  panduitPduInput
+-- =======================================================================
+-- ***********************************************************************
+-- panduitPduInputIdentEntry
+-- ***********************************************************************
+panduitPduInputIdentTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduInputIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the input metering of the PDU."
+    ::= { panduitPduInput 1 }
+
+panduitPduInputIdentEntry OBJECT-TYPE
+    SYNTAX PanduitPduInputIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The identification table containing the input metering of the PDU."
+    INDEX { panduitPduIndex }
+    ::= { panduitPduInputIdentTable 1 }
+
+PanduitPduInputIdentEntry ::= SEQUENCE {
+        panduitPduInputType                         PduInputType,
+        panduitPduInputRating                       VoltAmps,
+        panduitPduOutputVoltType                    PduOutputVoltageType
+    }
+
+panduitPduInputType OBJECT-TYPE
+    SYNTAX PduInputType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The input type of the PDU. singlePhase(0), delta(1), wye(2)"
+    ::= { panduitPduInputIdentEntry 1 }
+
+panduitPduInputRating OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The KVA input rating of the PDU."
+    ::= { panduitPduInputIdentEntry 2 }
+
+panduitPduOutputVoltType OBJECT-TYPE
+    SYNTAX PduOutputVoltageType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The output voltage type. lineToLine(1), lineToNeutral(2)"
+    ::= { panduitPduInputIdentEntry 3 }
+
+-- ***********************************************************************
+-- panduitPduInputDataEntry
+-- ***********************************************************************
+panduitPduInputDataTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduInputDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the input metering of the PDU."
+    ::= { panduitPduInput 2 }
+
+panduitPduInputDataEntry OBJECT-TYPE
+    SYNTAX PanduitPduInputDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The data table containing the input metering of the PDU."
+    AUGMENTS { panduitPduInputIdentEntry }
+    ::= { panduitPduInputDataTable 1 }
+
+PanduitPduInputDataEntry ::= SEQUENCE {
+        panduitPduInputCurrent                Current,
+        panduitPduInputAppPower               VoltAmps,
+        panduitPduInputAppPowerPercent        Percentage,
+        panduitPduInputActPower               Wattage,
+        panduitPduInputActPowerStatus         AlarmSeverityLevel,
+        panduitPduInputFrequency              Hertz,
+        panduitPduInputReActPower             VoltAmpsReactive,
+        panduitPduInputPowerFactor            Percentage,
+        panduitPduInputEnergy                 Energy,
+        panduitPduInputLifetimeEnergy         Energy,
+        panduitPduInputResetEnergyTime        DateAndTime
+    }
+
+panduitPduInputCurrent OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The total current of the PDU."
+    ::= { panduitPduInputDataEntry 1 }
+
+panduitPduInputAppPower OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The apperent power of the PDU."
+    ::= { panduitPduInputDataEntry 2 }
+
+panduitPduInputAppPowerPercent OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The percentage of apperent power of the used. (Apperent Power/PDU rating)"
+    ::= { panduitPduInputDataEntry 3 }
+
+panduitPduInputActPower OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The active power of the PDU."
+    ::= { panduitPduInputDataEntry 4 }
+
+panduitPduInputActPowerStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the alarm state of the Active power on the PDU."
+    ::= { panduitPduInputDataEntry 5 }
+
+panduitPduInputFrequency OBJECT-TYPE
+    SYNTAX Hertz
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The frequency of the input to the PDU."
+    ::= { panduitPduInputDataEntry 6 }
+
+panduitPduInputReActPower OBJECT-TYPE
+    SYNTAX VoltAmpsReactive
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The VAR of the input to the PDU."
+    ::= { panduitPduInputDataEntry 7 }
+
+panduitPduInputPowerFactor OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The power factor of the PDU."
+    ::= { panduitPduInputDataEntry 8 }
+
+panduitPduInputEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The total energy of the PDU since the last reset energy request."
+    ::= { panduitPduInputDataEntry 9 }
+
+panduitPduInputLifetimeEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The total energy of the PDU."
+    ::= { panduitPduInputDataEntry 10 }
+
+panduitPduInputResetEnergyTime OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The time the energy was reset."
+    ::= { panduitPduInputDataEntry 11 }
+
+-- ***********************************************************************
+-- panduitPduInputControlEntry
+-- ***********************************************************************
+panduitPduInputControlTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduInputControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the input metering of the PDU."
+    ::= { panduitPduInput 3 }
+
+panduitPduInputControlEntry OBJECT-TYPE
+    SYNTAX PanduitPduInputControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The Control table containing the input metering of the PDU."
+    AUGMENTS { panduitPduInputIdentEntry }
+    ::= { panduitPduInputControlTable 1 }
+
+PanduitPduInputControlEntry ::= SEQUENCE {
+        panduitPduInputActPowerHCL               Wattage,
+        panduitPduInputActPowerHCLEnable         EnabledState,
+        panduitPduInputActPowerHWL               Wattage,
+        panduitPduInputActPowerHWLEnable         EnabledState,
+        panduitPduInputActPowerLWL               Wattage,
+        panduitPduInputActPowerLWLEnable         EnabledState,
+        panduitPduInputActPowerLCL               Wattage,
+        panduitPduInputActPowerLCLEnable         EnabledState,
+        panduitPduInputActPowerHysteresis        Wattage,
+        panduitPduInputActPowerSampleCount       Integer32,
+        panduitPduInputResetEnergy               ResetOperation
+    }
+
+panduitPduInputActPowerHCL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high critical level threshold."
+    ::= { panduitPduInputControlEntry 1 }
+
+panduitPduInputActPowerHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high critical level threshold alarm enabled."
+    ::= { panduitPduInputControlEntry 2 }
+
+panduitPduInputActPowerHWL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high warning level threshold."
+    ::= { panduitPduInputControlEntry 3 }
+
+panduitPduInputActPowerHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high warning level threshold alarm enabled."
+    ::= { panduitPduInputControlEntry 4 }
+
+panduitPduInputActPowerLWL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low warning level threshold."
+    ::= { panduitPduInputControlEntry 5 }
+
+panduitPduInputActPowerLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low warning level threshold alarm enabled."
+    ::= { panduitPduInputControlEntry 6 }
+
+panduitPduInputActPowerLCL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low critical level threshold."
+    ::= { panduitPduInputControlEntry 7 }
+
+panduitPduInputActPowerLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low critical level threshold alarm enabled."
+    ::= { panduitPduInputControlEntry 8 }
+
+panduitPduInputActPowerHysteresis OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The hysteresis value for the active power alarm."
+    ::= { panduitPduInputControlEntry 9 }
+
+panduitPduInputActPowerSampleCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of samples before an active power alarm is raised."
+    ::= { panduitPduInputControlEntry 10 }
+
+panduitPduInputResetEnergy OBJECT-TYPE
+    SYNTAX ResetOperation
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Setting this OID to reset(2) will cause the the energy meter
+         value on the PDU to be reset to zero. Getting this OID in models
+         that support this feature will do nothing and return the
+         noOperation(1) value."
+    ::= { panduitPduInputControlEntry 11 }
+
+-- =======================================================================
+--  panduitPduPhase
+-- =======================================================================
+-- ***********************************************************************
+-- panduitPduPhaseIdentEntry
+-- ***********************************************************************
+panduitPduPhaseIdentTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduPhaseIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Identification information of the phase metering of the PDU."
+    ::= { panduitPduPhase 1 }
+
+panduitPduPhaseIdentEntry OBJECT-TYPE
+    SYNTAX PanduitPduPhaseIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The identification table containing the phase metering of the PDU."
+    INDEX { panduitPduIndex, panduitPduPhaseIndex }
+    ::= { panduitPduPhaseIdentTable 1 }
+
+PanduitPduPhaseIdentEntry ::= SEQUENCE {
+        panduitPduPhaseIndex                  Integer32,
+        panduitPduPhaseName                   DisplayString,
+        panduitPduPhaseCurrentRating          Current,
+        panduitPduMeasurementType             PhaseMeasurementType
+    }
+
+panduitPduPhaseIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..3)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Index for the panduitPduPhaseIdentEntry table."
+    ::= { panduitPduPhaseIdentEntry 1 }
+
+panduitPduPhaseName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The name of the phase."
+    ::= { panduitPduPhaseIdentEntry 2 }
+
+panduitPduPhaseCurrentRating OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The max current of the phase."
+    ::= { panduitPduPhaseIdentEntry 3 }
+
+panduitPduMeasurementType OBJECT-TYPE
+    SYNTAX PhaseMeasurementType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The phase measurement type. singlePhase(1), lineToLine(2), lineToNeutral(3)"
+    ::= { panduitPduPhaseIdentEntry 4 }
+
+-- ***********************************************************************
+-- panduitPduPhaseDataEntry
+-- ***********************************************************************
+panduitPduPhaseDataTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduPhaseDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Metering data of the phase metering of the PDU."
+    ::= { panduitPduPhase 2 }
+
+panduitPduPhaseDataEntry OBJECT-TYPE
+    SYNTAX PanduitPduPhaseDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The data table containing the input metering of the PDU."
+    AUGMENTS { panduitPduPhaseIdentEntry }
+    ::= { panduitPduPhaseDataTable 1 }
+
+PanduitPduPhaseDataEntry ::= SEQUENCE {
+        panduitPduPhaseCurrent                Current,
+        panduitPduPhaseLineCurrent            Current,
+        panduitPduPhaseLineCurrentStatus      AlarmSeverityLevel,
+        panduitPduPhaseVoltage                Voltage,
+        panduitPduPhaseVoltageStatus          AlarmSeverityLevel,
+        panduitPduPhaseAppPower               VoltAmps,
+        panduitPduPhaseAppPowerStatus         AlarmSeverityLevel,
+        panduitPduPhaseActPower               Wattage,
+        panduitPduPhaseActPowerStatus         AlarmSeverityLevel,
+        panduitPduPhaseFrequency              Hertz,
+        panduitPduPhaseCurrentLoadPercent     Percentage,
+        panduitPduPhaseReActPower             VoltAmpsReactive,
+        panduitPduPhasePowerFactor            Percentage,
+        panduitPduPhaseEnergy                 Energy,
+        panduitPduPhaseLifetimeEnergy         Energy,
+        panduitPduPhaseResetEnergyTime        DateAndTime
+    }
+
+panduitPduPhaseCurrent OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The phase current."
+    ::= { panduitPduPhaseDataEntry 1 }
+
+panduitPduPhaseLineCurrent OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The phase line current."
+    ::= { panduitPduPhaseDataEntry 2 }
+
+panduitPduPhaseLineCurrentStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the alarm state of the phase current."
+    ::= { panduitPduPhaseDataEntry 3 }
+
+panduitPduPhaseVoltage OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The phase voltage."
+    ::= { panduitPduPhaseDataEntry 4 }
+
+panduitPduPhaseVoltageStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the alarm state of the phase voltage."
+    ::= { panduitPduPhaseDataEntry 5 }
+
+panduitPduPhaseAppPower OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The apperent power of the PDU."
+    ::= { panduitPduPhaseDataEntry 6 }
+
+panduitPduPhaseAppPowerStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the alarm state of the apparent power of the phase."
+    ::= { panduitPduPhaseDataEntry 7 }
+
+panduitPduPhaseActPower OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The active power of the PDU."
+    ::= { panduitPduPhaseDataEntry 8 }
+
+panduitPduPhaseActPowerStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the alarm state of the active power of the phase."
+    ::= { panduitPduPhaseDataEntry 9 }
+
+panduitPduPhaseFrequency OBJECT-TYPE
+    SYNTAX Hertz
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The frequency of the phase."
+    ::= { panduitPduPhaseDataEntry 10 }
+
+panduitPduPhaseCurrentLoadPercent OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The percentage of current capacity."
+    ::= { panduitPduPhaseDataEntry 11 }
+
+panduitPduPhaseReActPower OBJECT-TYPE
+    SYNTAX VoltAmpsReactive
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The VAR of the PDU phase."
+    ::= { panduitPduPhaseDataEntry 12 }
+
+panduitPduPhasePowerFactor OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The power factor of the phase of the PDU."
+    ::= { panduitPduPhaseDataEntry 13 }
+
+panduitPduPhaseEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The accumlated energy of the phase since the last reset energy request."
+    ::= { panduitPduPhaseDataEntry 14 }
+
+panduitPduPhaseLifetimeEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The accumlated energy of the phase of the PDU."
+    ::= { panduitPduPhaseDataEntry 15 }
+
+panduitPduPhaseResetEnergyTime OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The time the energy was reset."
+    ::= { panduitPduPhaseDataEntry 16 }
+
+-- ***********************************************************************
+-- panduitPduPhaseControlEntry
+-- ***********************************************************************
+panduitPduPhaseControlTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduPhaseControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Control information of the input metering of the PDU."
+    ::= { panduitPduPhase 3 }
+
+panduitPduPhaseControlEntry OBJECT-TYPE
+    SYNTAX PanduitPduPhaseControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The Control table containing the input metering of the PDU."
+    AUGMENTS { panduitPduPhaseIdentEntry }
+    ::= { panduitPduPhaseControlTable 1 }
+
+PanduitPduPhaseControlEntry ::= SEQUENCE {
+        panduitPduPhaseLineCurrentHCL            Current,
+        panduitPduPhaseLineCurrentHCLEnable      EnabledState,
+        panduitPduPhaseLineCurrentHWL            Current,
+        panduitPduPhaseLineCurrentHWLEnable      EnabledState,
+        panduitPduPhaseLineCurrentLWL            Current,
+        panduitPduPhaseLineCurrentLWLEnable      EnabledState,
+        panduitPduPhaseLineCurrentLCL            Current,
+        panduitPduPhaseLineCurrentLCLEnable      EnabledState,
+        panduitPduPhaseLineCurrentHysteresis     Current,
+        panduitPduPhaseLineCurrentSampleCount    Integer32,
+        panduitPduPhaseVoltageHCL                Voltage,
+        panduitPduPhaseVoltageHCLEnable          EnabledState,
+        panduitPduPhaseVoltageHWL                Voltage,
+        panduitPduPhaseVoltageHWLEnable          EnabledState,
+        panduitPduPhaseVoltageLWL                Voltage,
+        panduitPduPhaseVoltageLWLEnable          EnabledState,
+        panduitPduPhaseVoltageLCL                Voltage,
+        panduitPduPhaseVoltageLCLEnable          EnabledState,
+        panduitPduPhaseVoltageHysteresis         Voltage,
+        panduitPduPhaseVoltageSampleCount        Integer32,
+        panduitPduPhaseAppPowerHCL               VoltAmps,
+        panduitPduPhaseAppPowerHCLEnable         EnabledState,
+        panduitPduPhaseAppPowerHWL               VoltAmps,
+        panduitPduPhaseAppPowerHWLEnable         EnabledState,
+        panduitPduPhaseAppPowerLWL               VoltAmps,
+        panduitPduPhaseAppPowerLWLEnable         EnabledState,
+        panduitPduPhaseAppPowerLCL               VoltAmps,
+        panduitPduPhaseAppPowerLCLEnable         EnabledState,
+        panduitPduPhaseAppPowerHysteresis        VoltAmps,
+        panduitPduPhaseAppPowerSampleCount       Integer32,
+        panduitPduPhaseActPowerHCL               Wattage,
+        panduitPduPhaseActPowerHCLEnable         EnabledState,
+        panduitPduPhaseActPowerHWL               Wattage,
+        panduitPduPhaseActPowerHWLEnable         EnabledState,
+        panduitPduPhaseActPowerLWL               Wattage,
+        panduitPduPhaseActPowerLWLEnable         EnabledState,
+        panduitPduPhaseActPowerLCL               Wattage,
+        panduitPduPhaseActPowerLCLEnable         EnabledState,
+        panduitPduPhaseActPowerHysteresis        Wattage,
+        panduitPduPhaseActPowerSampleCount       Integer32
+    }
+
+panduitPduPhaseLineCurrentHCL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current critical level threshold."
+    ::= { panduitPduPhaseControlEntry 1 }
+
+panduitPduPhaseLineCurrentHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current high critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 2 }
+
+panduitPduPhaseLineCurrentHWL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current high warning level threshold."
+    ::= { panduitPduPhaseControlEntry 3 }
+
+panduitPduPhaseLineCurrentHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current high warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 4 }
+
+panduitPduPhaseLineCurrentLWL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current low warning level threshold."
+    ::= { panduitPduPhaseControlEntry 5 }
+
+panduitPduPhaseLineCurrentLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current low warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 6 }
+
+panduitPduPhaseLineCurrentLCL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current low critical level threshold."
+    ::= { panduitPduPhaseControlEntry 7 }
+
+panduitPduPhaseLineCurrentLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The line current low critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 8 }
+
+panduitPduPhaseLineCurrentHysteresis OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The hysteresis value for the line current alarm."
+    ::= { panduitPduPhaseControlEntry 9 }
+
+panduitPduPhaseLineCurrentSampleCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of samples before a line current alarm is raised."
+    ::= { panduitPduPhaseControlEntry 10 }
+
+panduitPduPhaseVoltageHCL OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage critical level threshold."
+    ::= { panduitPduPhaseControlEntry 11 }
+
+panduitPduPhaseVoltageHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage high critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 12 }
+
+panduitPduPhaseVoltageHWL OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage high warning level threshold."
+    ::= { panduitPduPhaseControlEntry 13 }
+
+panduitPduPhaseVoltageHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage high warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 14 }
+
+panduitPduPhaseVoltageLWL OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage low warning level threshold."
+    ::= { panduitPduPhaseControlEntry 15 }
+
+panduitPduPhaseVoltageLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage low warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 16 }
+
+panduitPduPhaseVoltageLCL OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage low critical level threshold."
+    ::= { panduitPduPhaseControlEntry 17 }
+
+panduitPduPhaseVoltageLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase voltage low critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 18 }
+
+panduitPduPhaseVoltageHysteresis OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The hysteresis value for the phase voltage alarm."
+    ::= { panduitPduPhaseControlEntry 19 }
+
+panduitPduPhaseVoltageSampleCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of samples before a phase voltage alarm is raised."
+    ::= { panduitPduPhaseControlEntry 20 }
+
+panduitPduPhaseAppPowerHCL OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power critical level threshold."
+    ::= { panduitPduPhaseControlEntry 21 }
+
+panduitPduPhaseAppPowerHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power high critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 22 }
+
+panduitPduPhaseAppPowerHWL OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power high warning level threshold."
+    ::= { panduitPduPhaseControlEntry 23 }
+
+panduitPduPhaseAppPowerHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power high warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 24 }
+
+panduitPduPhaseAppPowerLWL OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power low warning level threshold."
+    ::= { panduitPduPhaseControlEntry 25 }
+
+panduitPduPhaseAppPowerLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power low warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 26 }
+
+panduitPduPhaseAppPowerLCL OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power low critical level threshold."
+    ::= { panduitPduPhaseControlEntry 27 }
+
+panduitPduPhaseAppPowerLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase apparent power low critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 28 }
+
+panduitPduPhaseAppPowerHysteresis OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The hysteresis value for the phase apparent power alarm."
+    ::= { panduitPduPhaseControlEntry 29 }
+
+panduitPduPhaseAppPowerSampleCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of samples before a phase apparent power alarm is raised."
+    ::= { panduitPduPhaseControlEntry 30 }
+
+panduitPduPhaseActPowerHCL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power critical level threshold."
+    ::= { panduitPduPhaseControlEntry 31 }
+
+panduitPduPhaseActPowerHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power high critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 32 }
+
+panduitPduPhaseActPowerHWL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power high warning level threshold."
+    ::= { panduitPduPhaseControlEntry 33 }
+
+panduitPduPhaseActPowerHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power high warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 34 }
+
+panduitPduPhaseActPowerLWL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power low warning level threshold."
+    ::= { panduitPduPhaseControlEntry 35 }
+
+panduitPduPhaseActPowerLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power low warning level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 36 }
+
+panduitPduPhaseActPowerLCL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power low critical level threshold."
+    ::= { panduitPduPhaseControlEntry 37 }
+
+panduitPduPhaseActPowerLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The phase active power low critical level threshold alarm enabled."
+    ::= { panduitPduPhaseControlEntry 38 }
+
+panduitPduPhaseActPowerHysteresis OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The hysteresis value for the phase active power alarm."
+    ::= { panduitPduPhaseControlEntry 39 }
+
+panduitPduPhaseActPowerSampleCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of samples before a phase active power alarm is raised."
+    ::= { panduitPduPhaseControlEntry 40 }
+
+-- =======================================================================
+--  panduitPduGroup
+-- =======================================================================
+-- ***********************************************************************
+-- panduitPduGroupIdentEntry
+-- ***********************************************************************
+panduitPduGroupIdentTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduGroupIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the group/breaker metering of the PDU."
+    ::= { panduitPduGroup 1 }
+
+panduitPduGroupIdentEntry OBJECT-TYPE
+    SYNTAX PanduitPduGroupIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The identification table containing the group (breaker) metering of the PDU."
+    INDEX { panduitPduIndex, panduitPduGroupIndex }
+    ::= { panduitPduGroupIdentTable 1 }
+
+PanduitPduGroupIdentEntry ::= SEQUENCE {
+        panduitPduGroupIndex                  Integer32,
+        panduitPduGroupName                   DisplayString,
+        panduitPduGroupType                   GroupType,
+        panduitPduGroupBreakerRating          Current,
+        panduitPduGroupPhaseNumber            Integer32,
+        panduitPduGroupOutletCount            Integer32
+    }
+
+panduitPduGroupIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..15)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Index for the panduitPduGroupIdentEntry table."
+    ::= { panduitPduGroupIdentEntry 1 }
+
+panduitPduGroupName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The name of the group/breaker."
+    ::= { panduitPduGroupIdentEntry 2 }
+
+panduitPduGroupType OBJECT-TYPE
+    SYNTAX GroupType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The group type. virtual(1) - no breaker. singlePole (2) - single pole breaker. doublePole(3) - double pole breaker."
+    ::= { panduitPduGroupIdentEntry 3 }
+
+panduitPduGroupBreakerRating OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The max current of the group or breaker."
+    ::= { panduitPduGroupIdentEntry 4 }
+
+panduitPduGroupPhaseNumber OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The phase number of the this group."
+    ::= { panduitPduGroupIdentEntry 5 }
+
+panduitPduGroupOutletCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The outlet count this group."
+    ::= { panduitPduGroupIdentEntry 6 }
+
+-- ***********************************************************************
+-- panduitPduGroupIdentEntry
+-- ***********************************************************************
+panduitPduGroupDataTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduGroupDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the group (breaker) metering of the PDU."
+    ::= { panduitPduGroup 2 }
+
+panduitPduGroupDataEntry OBJECT-TYPE
+    SYNTAX PanduitPduGroupDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The data table containing the group (breaker) metering of the PDU."
+    AUGMENTS { panduitPduGroupIdentEntry }
+    ::= { panduitPduGroupDataTable 1 }
+
+PanduitPduGroupDataEntry ::= SEQUENCE {
+        panduitPduGroupCurrent                 Current,
+        panduitPduGroupCurrentStatus           AlarmSeverityLevel,
+        panduitPduGroupVoltage                 Voltage,
+        panduitPduGroupAppPower                VoltAmps,
+        panduitPduGroupActPower                Wattage,
+        panduitPduGroupFrequency               Hertz,
+        panduitPduGroupCurrentLoadPercent      Percentage,
+        panduitPduGroupReActPower              VoltAmpsReactive,
+        panduitPduGroupPowerFactor             Percentage,
+        panduitPduGroupEnergy                  Energy,
+        panduitPduGroupLifetimeEnergy          Energy,
+        panduitPduGroupResetEnergyTime         DateAndTime,
+        panduitPduGroupBreakerState            BreakerState
+    }
+
+panduitPduGroupCurrent OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The group/breaker current."
+    ::= { panduitPduGroupDataEntry 1 }
+
+panduitPduGroupCurrentStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the alarm state of the group/breaker current."
+    ::= { panduitPduGroupDataEntry 2 }
+
+panduitPduGroupVoltage OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The group/breaker voltage."
+    ::= { panduitPduGroupDataEntry 3 }
+
+panduitPduGroupAppPower OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The apperent power of the group/breaker."
+    ::= { panduitPduGroupDataEntry 4 }
+
+panduitPduGroupActPower OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The active power of the group/breaker."
+    ::= { panduitPduGroupDataEntry 5 }
+
+panduitPduGroupFrequency OBJECT-TYPE
+    SYNTAX Hertz
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The frequency of the group/breaker."
+    ::= { panduitPduGroupDataEntry 6 }
+
+panduitPduGroupCurrentLoadPercent OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The percentage of current capacity."
+    ::= { panduitPduGroupDataEntry 7 }
+
+panduitPduGroupReActPower OBJECT-TYPE
+    SYNTAX VoltAmpsReactive
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The VAR of the group/breaker."
+    ::= { panduitPduGroupDataEntry 8 }
+
+panduitPduGroupPowerFactor OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The power factor of the group/breaker of the PDU."
+    ::= { panduitPduGroupDataEntry 9 }
+
+panduitPduGroupEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The accumlated energy of the group/breaker since the last reset energy request."
+    ::= { panduitPduGroupDataEntry 10 }
+
+panduitPduGroupLifetimeEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The accumlated energy of the group/breaker of the PDU."
+    ::= { panduitPduGroupDataEntry 11 }
+
+panduitPduGroupResetEnergyTime OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The time the energy was reset."
+    ::= { panduitPduGroupDataEntry 12 }
+
+panduitPduGroupBreakerState OBJECT-TYPE
+    SYNTAX BreakerState
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The state of the breaker."
+    ::= { panduitPduGroupDataEntry 13 }
+
+-- ***********************************************************************
+-- panduitPduGroupControlEntry
+-- ***********************************************************************
+panduitPduGroupControlTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduGroupControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the group (breaker) metering of the PDU."
+    ::= { panduitPduGroup 3 }
+
+panduitPduGroupControlEntry OBJECT-TYPE
+    SYNTAX PanduitPduGroupControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The Control table containing the group (breaker) metering of the PDU."
+    AUGMENTS { panduitPduGroupIdentEntry }
+    ::= { panduitPduGroupControlTable 1 }
+
+PanduitPduGroupControlEntry ::= SEQUENCE {
+        panduitPduGroupCurrentHCL                    Current,
+        panduitPduGroupCurrentHCLEnable              EnabledState,
+        panduitPduGroupCurrentHWL                    Current,
+        panduitPduGroupCurrentHWLEnable              EnabledState,
+        panduitPduGroupCurrentLWL                    Current,
+        panduitPduGroupCurrentLWLEnable              EnabledState,
+        panduitPduGroupCurrentLCL                    Current,
+        panduitPduGroupCurrentLCLEnable              EnabledState,
+        panduitPduGroupCurrentHysteresis             Current,
+        panduitPduGroupCurrentSampleCount            Integer32
+    }
+
+panduitPduGroupCurrentHCL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current critical level threshold."
+    ::= { panduitPduGroupControlEntry 1 }
+
+panduitPduGroupCurrentHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current high critical level threshold alarm enabled."
+    ::= { panduitPduGroupControlEntry 2 }
+
+panduitPduGroupCurrentHWL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current high warning level threshold."
+    ::= { panduitPduGroupControlEntry 3 }
+
+panduitPduGroupCurrentHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current high warning level threshold alarm enabled."
+    ::= { panduitPduGroupControlEntry 4 }
+
+panduitPduGroupCurrentLWL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current low warning level threshold."
+    ::= { panduitPduGroupControlEntry 5 }
+
+panduitPduGroupCurrentLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current low warning level threshold alarm enabled."
+    ::= { panduitPduGroupControlEntry 6 }
+
+panduitPduGroupCurrentLCL OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current low critical level threshold."
+    ::= { panduitPduGroupControlEntry 7 }
+
+panduitPduGroupCurrentLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The current low critical level threshold alarm enabled."
+    ::= { panduitPduGroupControlEntry 8 }
+
+panduitPduGroupCurrentHysteresis OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The hysteresis value for the current alarm."
+    ::= { panduitPduGroupControlEntry 9 }
+
+panduitPduGroupCurrentSampleCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of samples before a current alarm is raised."
+    ::= { panduitPduGroupControlEntry 10 }
+
+-- =======================================================================
+--  panduitPduOutlet
+-- =======================================================================
+-- ***********************************************************************
+-- panduitPduOutletIdentEntry
+-- ***********************************************************************
+panduitPduOutletIdentTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduOutletIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the outlet metering of the PDU."
+    ::= { panduitPduOutlets 1 }
+
+panduitPduOutletIdentEntry OBJECT-TYPE
+    SYNTAX PanduitPduOutletIdentEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The identification table containing the outlet metering of the PDU."
+    INDEX { panduitPduIndex, panduitPduOutletIndex }
+    ::= { panduitPduOutletIdentTable 1 }
+
+PanduitPduOutletIdentEntry ::= SEQUENCE {
+        panduitPduOutletIndex                  INTEGER,
+        panduitPduOutletName                   DisplayString,
+        panduitPduOutletControllable           EnabledState,
+        panduitPduOutletType                   OutletType,
+        panduitPduOutletCurrentRating          Current,
+        panduitPduOutletPhaseNumber            Integer32,
+        panduitPduOutletGroupNumber            Integer32,
+        panduitPduOutletPhaseWireType          PhaseWireType,
+        panduitPduOutletNominalVoltage         NominalVoltage,
+        panduitPduOutletActPowerMax            Wattage
+    }
+
+panduitPduOutletIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..64)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Index for the panduitPduIdentEntry table."
+    ::= { panduitPduOutletIdentEntry 1 }
+
+panduitPduOutletName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The name of the outlet."
+    ::= { panduitPduOutletIdentEntry 2 }
+
+panduitPduOutletControllable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Is the outlet controllable. enabled(1) - outlet is controllable. disabled(2) - outlet is not controllable."
+    ::= { panduitPduOutletIdentEntry 3 }
+
+panduitPduOutletType OBJECT-TYPE
+    SYNTAX OutletType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The type of outlet. c13(1) - C13 outlet, c19(2) - C19 outlet, c13c15(3) - C13/C15 Combo outlet, c13c15c19(4) - C13/C15/C19 Combo outlet,
+         nema515R(5) - NEMA 5-15R Outlet, nema520R(6) - NEMA 5-20R Outlet"
+    ::= { panduitPduOutletIdentEntry 4 }
+
+panduitPduOutletCurrentRating OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Current rating of the outlet."
+    ::= { panduitPduOutletIdentEntry 5 }
+
+panduitPduOutletPhaseNumber OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The first phase the outlet is on."
+    ::= { panduitPduOutletIdentEntry 6 }
+
+panduitPduOutletGroupNumber OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The group number the outlet is on."
+    ::= { panduitPduOutletIdentEntry 7 }
+
+panduitPduOutletPhaseWireType OBJECT-TYPE
+    SYNTAX PhaseWireType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The phase wiring type. oneOrTwoPhase3(1), onePhase3(2) threePhase4(3) threePhase5(4) twoPhase3(5) twoPhase4(6)."
+    ::= { panduitPduOutletIdentEntry 8 }
+
+panduitPduOutletNominalVoltage OBJECT-TYPE
+    SYNTAX NominalVoltage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The nominal voltage. Valid options:  Ac120V(4), Ac208V(7), Ac230V(8), Ac240V(10)"
+    ::= { panduitPduOutletIdentEntry 9 }
+
+panduitPduOutletActPowerMax OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The max active power on the outlet."
+    ::= { panduitPduOutletIdentEntry 10 }
+
+-- ***********************************************************************
+-- panduitPduOutletDataEntry
+-- ***********************************************************************
+panduitPduOutletDataTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduOutletDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the outlet metering of the PDU."
+    ::= { panduitPduOutlets 2 }
+
+panduitPduOutletDataEntry OBJECT-TYPE
+    SYNTAX PanduitPduOutletDataEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The data table containing the outlet metering of the PDU."
+    AUGMENTS { panduitPduOutletIdentEntry }
+    ::= { panduitPduOutletDataTable 1 }
+
+PanduitPduOutletDataEntry ::= SEQUENCE {
+        panduitPduOutletPowerState             ActiveStatus,
+        panduitPduOutletCurrent                Current,
+        panduitPduOutletVoltage                Voltage,
+        panduitPduOutletAppPower               VoltAmps,
+        panduitPduOutletActPower               Wattage,
+        panduitPduOutletActPowerStatus         AlarmSeverityLevel,
+        panduitPduOutletFrequency              Hertz,
+        panduitPduOutletCurrentLoadPercent     Percentage,
+        panduitPduOutletReActPower             VoltAmpsReactive,
+        panduitPduOutletPowerFactor            Percentage,
+        panduitPduOutletEnergy                 Energy,
+        panduitPduOutletLifetimeEnergy         Energy,
+        panduitPduOutletResetEnergyTime        DateAndTime
+    }
+
+panduitPduOutletPowerState OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The power state of the outlet. active(1) - Outlet is active and supplying power.
+         inactive(2) - Outlet is inactive and is not supplying power."
+    ::= { panduitPduOutletDataEntry 1 }
+
+panduitPduOutletCurrent OBJECT-TYPE
+    SYNTAX Current
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The outlet current."
+    ::= { panduitPduOutletDataEntry 2 }
+
+panduitPduOutletVoltage OBJECT-TYPE
+    SYNTAX Voltage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The outlet voltage."
+    ::= { panduitPduOutletDataEntry 3 }
+
+panduitPduOutletAppPower OBJECT-TYPE
+    SYNTAX VoltAmps
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The apperent power of the outlet."
+    ::= { panduitPduOutletDataEntry 4 }
+
+panduitPduOutletActPower OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The active power of the outlet."
+    ::= { panduitPduOutletDataEntry 5 }
+
+panduitPduOutletActPowerStatus OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the alarm state of the outlet active power."
+    ::= { panduitPduOutletDataEntry 6 }
+
+panduitPduOutletFrequency OBJECT-TYPE
+    SYNTAX Hertz
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The frequency of the outlet."
+    ::= { panduitPduOutletDataEntry 7 }
+
+panduitPduOutletCurrentLoadPercent OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The percentage of current capacity."
+    ::= { panduitPduOutletDataEntry 8 }
+
+panduitPduOutletReActPower OBJECT-TYPE
+    SYNTAX VoltAmpsReactive
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The VAR of the outlet."
+    ::= { panduitPduOutletDataEntry 9 }
+
+panduitPduOutletPowerFactor OBJECT-TYPE
+    SYNTAX Percentage
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The power factor of the outlet of the PDU."
+    ::= { panduitPduOutletDataEntry 10 }
+
+panduitPduOutletEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The accumlated energy of the outlet since the last reset energy request."
+    ::= { panduitPduOutletDataEntry 11 }
+
+panduitPduOutletLifetimeEnergy OBJECT-TYPE
+    SYNTAX Energy
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The accumlated energy of the outlet of the PDU."
+    ::= { panduitPduOutletDataEntry 12 }
+
+panduitPduOutletResetEnergyTime OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The time the energy was reset."
+    ::= { panduitPduOutletDataEntry 13 }
+
+-- ***********************************************************************
+-- panduitPduOutletControlEntry
+-- ***********************************************************************
+panduitPduOutletControlTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PanduitPduOutletControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "Information of the outlet metering of the PDU."
+    ::= { panduitPduOutlets 3 }
+
+panduitPduOutletControlEntry OBJECT-TYPE
+    SYNTAX PanduitPduOutletControlEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The Control table containing the outlet metering of the PDU."
+    AUGMENTS { panduitPduOutletIdentEntry }
+    ::= { panduitPduOutletControlTable 1 }
+
+PanduitPduOutletControlEntry ::= SEQUENCE {
+        panduitPduOutletPowerControl           PowerControl,
+        panduitPduOutletSequenceOnNum          Integer32,
+        panduitPduOutletSequenceOnDelay        Integer32,
+        panduitPduOutletPowerOnState           StateOnStartup,
+        panduitPduOutletDelayOnTime            Integer32,
+        panduitPduOutletDelayOffTime           Integer32,
+        panduitPduOutletRebootDuration         Integer32,
+        panduitPduOutletActPowerHCL            Wattage,
+        panduitPduOutletActPowerHCLEnable      EnabledState,
+        panduitPduOutletActPowerHWL            Wattage,
+        panduitPduOutletActPowerHWLEnable      EnabledState,
+        panduitPduOutletActPowerLWL            Wattage,
+        panduitPduOutletActPowerLWLEnable      EnabledState,
+        panduitPduOutletActPowerLCL            Wattage,
+        panduitPduOutletActPowerLCLEnable      EnabledState,
+        panduitPduOutletActPowerHysteresis     Wattage,
+        panduitPduOutletActPowerSampleCount    Integer32
+    }
+
+panduitPduOutletPowerControl OBJECT-TYPE
+    SYNTAX PowerControl
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The outlet power control setting."
+    ::= { panduitPduOutletControlEntry 1 }
+
+panduitPduOutletSequenceOnNum OBJECT-TYPE
+    SYNTAX Integer32 (0..48)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "On power up, the order of this outlet in the sequence of turning on power."
+    ::= { panduitPduOutletControlEntry 2 }
+
+panduitPduOutletSequenceOnDelay OBJECT-TYPE
+    SYNTAX Integer32 (0..7200)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The outlet turns on after a power up, following a delay from the previous outlet."
+    ::= { panduitPduOutletControlEntry 3 }
+
+panduitPduOutletPowerOnState OBJECT-TYPE
+    SYNTAX StateOnStartup
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The state of the outlet after a system power on."
+    ::= { panduitPduOutletControlEntry 4 }
+
+panduitPduOutletDelayOnTime OBJECT-TYPE
+    SYNTAX Integer32 (0..7200)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of seconds to delay before turning an outlet on with a delayed on."
+    ::= { panduitPduOutletControlEntry 5 }
+
+panduitPduOutletDelayOffTime OBJECT-TYPE
+    SYNTAX Integer32 (0..7200)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of seconds to delay before turning an outlet off with a delayed off."
+    ::= { panduitPduOutletControlEntry 6 }
+
+panduitPduOutletRebootDuration OBJECT-TYPE
+    SYNTAX Integer32 (5..60)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of seconds the outlet will remain off during a reboot."
+    ::= { panduitPduOutletControlEntry 7 }
+
+panduitPduOutletActPowerHCL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high critical level threshold."
+    ::= { panduitPduOutletControlEntry 8 }
+
+panduitPduOutletActPowerHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high critical level threshold alarm enabled."
+    ::= { panduitPduOutletControlEntry 9 }
+
+panduitPduOutletActPowerHWL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high warning level threshold."
+    ::= { panduitPduOutletControlEntry 10 }
+
+panduitPduOutletActPowerHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power high warning level threshold alarm enabled."
+    ::= { panduitPduOutletControlEntry 11 }
+
+panduitPduOutletActPowerLWL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low warning level threshold."
+    ::= { panduitPduOutletControlEntry 12 }
+
+panduitPduOutletActPowerLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low warning level threshold alarm enabled."
+    ::= { panduitPduOutletControlEntry 13 }
+
+panduitPduOutletActPowerLCL OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low critical level threshold."
+    ::= { panduitPduOutletControlEntry 14 }
+
+panduitPduOutletActPowerLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The active power low critical level threshold alarm enabled."
+    ::= { panduitPduOutletControlEntry 15 }
+
+panduitPduOutletActPowerHysteresis OBJECT-TYPE
+    SYNTAX Wattage
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The hysteresis value for the active power alarm."
+    ::= { panduitPduOutletControlEntry 16 }
+
+panduitPduOutletActPowerSampleCount OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The number of samples before an active power alarm is raised."
+    ::= { panduitPduOutletControlEntry 17 }
+
+-- ***********************************************************************
+-- Conformance
+--
+panduitPduCompliances        OBJECT IDENTIFIER       ::= { panduitPduConformance 1 }
+panduitPduGroups             OBJECT IDENTIFIER       ::= { panduitPduConformance 2 }
+
+panduitPduFullCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The panduit PDU Full Conformance compliances"
+    MODULE
+        MANDATORY-GROUPS {
+            panduitPduSystemGroup,
+            panduitPduUnitGroup,
+            panduitPduInputGroup,
+            panduitPduPhaseGroup,
+            panduitPduGroupGroup,
+            panduitPduOutletsGroup }
+    ::= { panduitPduCompliances 1 }
+
+panduitPduStatusCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The panduitPdu Conformance compliances"
+    MODULE
+        MANDATORY-GROUPS {
+            panduitPduSystemGroup,
+            panduitPduUnitGroup,
+            panduitPduInputGroup,
+            panduitPduPhaseGroup,
+            panduitPduGroupGroup,
+            panduitPduOutletsGroup }
+    ::= { panduitPduCompliances 2 }
+
+panduitPduSystemGroup OBJECT-GROUP
+    OBJECTS {
+            panduitPduSystemName,
+            panduitPduCount,
+            panduitPduHttpEnable,
+            panduitPduHttpPort,
+            panduitPduHttpsEnable,
+            panduitPduHttpsPort,
+            panduitPduSshEnable,
+            panduitPduSshPort,
+            panduitPduEnergyResetAll,
+            panduitPduOutletControlState
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitPduSystemGroup defines objects which are associated with system
+         level information"
+    ::= { panduitPduGroups 1 }
+
+panduitPduUnitGroup OBJECT-GROUP
+    OBJECTS {
+            panduitPduName,
+            panduitPduManufacturer,
+            panduitPduBuildDate,
+            panduitPduPartNumber,
+            panduitPduSerialNum,
+            panduitPduHwVersion,
+            panduitPduNmcFwVersion,
+            panduitPduNmcFwVersionTimeStamp,
+            panduitPduNmcPartNumber,
+            panduitPduNmcSerialNumber,
+            panduitPduNmcHardwareVersion,
+            panduitPduNmcModel,
+            panduitPduType,
+            panduitPduCordType,
+            panduitPduRegion,
+            panduitPduInputPhaseCount,
+            panduitPduGroupCount,
+            panduitPduOutletCount,
+            panduitPduStatus
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitPduBatteryGroup defines objects which are associated with
+         battery information"
+    ::= { panduitPduGroups 2 }
+
+panduitPduInputGroup OBJECT-GROUP
+    OBJECTS {
+        panduitPduInputType,
+        panduitPduInputRating,
+        panduitPduOutputVoltType,
+        panduitPduInputCurrent,
+        panduitPduInputAppPower,
+        panduitPduInputAppPowerPercent,
+        panduitPduInputActPower,
+        panduitPduInputActPowerStatus,
+        panduitPduInputFrequency,
+        panduitPduInputReActPower,
+        panduitPduInputPowerFactor,
+        panduitPduInputEnergy,
+        panduitPduInputLifetimeEnergy,
+        panduitPduInputResetEnergyTime,
+        panduitPduInputActPowerHCL,
+        panduitPduInputActPowerHCLEnable,
+        panduitPduInputActPowerHWL,
+        panduitPduInputActPowerHWLEnable,
+        panduitPduInputActPowerLWL,
+        panduitPduInputActPowerLWLEnable,
+        panduitPduInputActPowerLCL,
+        panduitPduInputActPowerLCLEnable,
+        panduitPduInputActPowerHysteresis,
+        panduitPduInputActPowerSampleCount,
+        panduitPduInputResetEnergy
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitPduInputGroup defines objects which are associated with input
+         information"
+    ::= { panduitPduGroups 3 }
+
+panduitPduPhaseGroup OBJECT-GROUP
+    OBJECTS {
+        panduitPduPhaseName,
+        panduitPduPhaseCurrentRating,
+        panduitPduMeasurementType,
+        panduitPduPhaseCurrent,
+        panduitPduPhaseLineCurrent,
+        panduitPduPhaseLineCurrentStatus,
+        panduitPduPhaseVoltage,
+        panduitPduPhaseVoltageStatus,
+        panduitPduPhaseAppPower,
+        panduitPduPhaseAppPowerStatus,
+        panduitPduPhaseActPower,
+        panduitPduPhaseActPowerStatus,
+        panduitPduPhaseFrequency,
+        panduitPduPhaseCurrentLoadPercent,
+        panduitPduPhaseReActPower,
+        panduitPduPhasePowerFactor,
+        panduitPduPhaseEnergy,
+        panduitPduPhaseLifetimeEnergy,
+        panduitPduPhaseResetEnergyTime,
+        panduitPduPhaseLineCurrentHCL,
+        panduitPduPhaseLineCurrentHCLEnable,
+        panduitPduPhaseLineCurrentHWL,
+        panduitPduPhaseLineCurrentHWLEnable,
+        panduitPduPhaseLineCurrentLWL,
+        panduitPduPhaseLineCurrentLWLEnable,
+        panduitPduPhaseLineCurrentLCL,
+        panduitPduPhaseLineCurrentLCLEnable,
+        panduitPduPhaseLineCurrentHysteresis,
+        panduitPduPhaseLineCurrentSampleCount,
+        panduitPduPhaseVoltageHCL,
+        panduitPduPhaseVoltageHCLEnable,
+        panduitPduPhaseVoltageHWL,
+        panduitPduPhaseVoltageHWLEnable,
+        panduitPduPhaseVoltageLWL,
+        panduitPduPhaseVoltageLWLEnable,
+        panduitPduPhaseVoltageLCL,
+        panduitPduPhaseVoltageLCLEnable,
+        panduitPduPhaseVoltageHysteresis,
+        panduitPduPhaseVoltageSampleCount,
+        panduitPduPhaseAppPowerHCL,
+        panduitPduPhaseAppPowerHCLEnable,
+        panduitPduPhaseAppPowerHWL,
+        panduitPduPhaseAppPowerHWLEnable,
+        panduitPduPhaseAppPowerLWL,
+        panduitPduPhaseAppPowerLWLEnable,
+        panduitPduPhaseAppPowerLCL,
+        panduitPduPhaseAppPowerLCLEnable,
+        panduitPduPhaseAppPowerHysteresis,
+        panduitPduPhaseAppPowerSampleCount,
+        panduitPduPhaseActPowerHCL,
+        panduitPduPhaseActPowerHCLEnable,
+        panduitPduPhaseActPowerHWL,
+        panduitPduPhaseActPowerHWLEnable,
+        panduitPduPhaseActPowerLWL,
+        panduitPduPhaseActPowerLWLEnable,
+        panduitPduPhaseActPowerLCL,
+        panduitPduPhaseActPowerLCLEnable,
+        panduitPduPhaseActPowerHysteresis,
+        panduitPduPhaseActPowerSampleCount
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitPduPhaseGroup defines objects which are associated with
+         the phases information"
+    ::= { panduitPduGroups 4 }
+
+panduitPduGroupGroup OBJECT-GROUP
+    OBJECTS {
+        panduitPduGroupName,
+        panduitPduGroupType,
+        panduitPduGroupBreakerRating,
+        panduitPduGroupPhaseNumber,
+        panduitPduGroupOutletCount,
+        panduitPduRowStatus,
+        panduitPduGroupCurrent,
+        panduitPduGroupCurrentStatus,
+        panduitPduGroupVoltage,
+        panduitPduGroupAppPower,
+        panduitPduGroupActPower,
+        panduitPduGroupFrequency,
+        panduitPduGroupCurrentLoadPercent,
+        panduitPduGroupReActPower,
+        panduitPduGroupPowerFactor,
+        panduitPduGroupEnergy,
+        panduitPduGroupLifetimeEnergy,
+        panduitPduGroupResetEnergyTime,
+        panduitPduGroupBreakerState,
+        panduitPduGroupCurrentHCL,
+        panduitPduGroupCurrentHCLEnable,
+        panduitPduGroupCurrentHWL,
+        panduitPduGroupCurrentHWLEnable,
+        panduitPduGroupCurrentLWL,
+        panduitPduGroupCurrentLWLEnable,
+        panduitPduGroupCurrentLCL,
+        panduitPduGroupCurrentLCLEnable,
+        panduitPduGroupCurrentHysteresis,
+        panduitPduGroupCurrentSampleCount
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitPduGroupGroup defines objects which are associated with
+         breakers/groups information"
+    ::= { panduitPduGroups 5 }
+
+panduitPduOutletsGroup OBJECT-GROUP
+    OBJECTS {
+        panduitPduOutletName,
+        panduitPduOutletControllable,
+        panduitPduOutletType,
+        panduitPduOutletCurrentRating,
+        panduitPduOutletPhaseNumber,
+        panduitPduOutletGroupNumber,
+        panduitPduOutletPhaseWireType,
+        panduitPduOutletNominalVoltage,
+        panduitPduOutletActPowerMax,
+        panduitPduOutletPowerState,
+        panduitPduOutletCurrent,
+        panduitPduOutletVoltage,
+        panduitPduOutletAppPower,
+        panduitPduOutletActPower,
+        panduitPduOutletActPowerStatus,
+        panduitPduOutletFrequency,
+        panduitPduOutletCurrentLoadPercent,
+        panduitPduOutletReActPower,
+        panduitPduOutletPowerFactor,
+        panduitPduOutletEnergy,
+        panduitPduOutletLifetimeEnergy,
+        panduitPduOutletResetEnergyTime,
+        panduitPduOutletPowerControl,
+        panduitPduOutletSequenceOnNum,
+        panduitPduOutletSequenceOnDelay,
+        panduitPduOutletPowerOnState,
+        panduitPduOutletDelayOnTime,
+        panduitPduOutletDelayOffTime,
+        panduitPduOutletRebootDuration,
+        panduitPduOutletActPowerHCL,
+        panduitPduOutletActPowerHCLEnable,
+        panduitPduOutletActPowerHWL,
+        panduitPduOutletActPowerHWLEnable,
+        panduitPduOutletActPowerLWL,
+        panduitPduOutletActPowerLWLEnable,
+        panduitPduOutletActPowerLCL,
+        panduitPduOutletActPowerLCLEnable,
+        panduitPduOutletActPowerHysteresis,
+        panduitPduOutletActPowerSampleCount
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitPduOutletsGroup defines objects which are associated with outlet
+         information"
+    ::= { panduitPduGroups 6 }
+
+panduitAccessControl            OBJECT IDENTIFIER       ::= { panduit 15 }
+panduitSensor                   OBJECT IDENTIFIER       ::= { panduit 17 }
+--
+-- Textual Conventions
+--
+PinMode ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Setting if the user pins are visible or hidden."
+    SYNTAX INTEGER { visible(1), hidden (2) }
+
+AisleControl ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Represents the aisle control function.
+         standalone each aisle will be controlled separately,
+         combined each aisle will be controlled together."
+    SYNTAX INTEGER { combined(1), standalone(2) }
+
+BeaconFunction ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Represents function of the beacon. Locate flash the beacon color.  Standy by will be solid
+                 or blink red is a critical alarm is present or blink yellow is a warning alarm is present."
+    SYNTAX INTEGER { standby(1), locate (2) }
+
+BeaconColor ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Represents of the colors of the beacon"
+    SYNTAX      INTEGER { beaconoff(1), red(2), green(3), blue(4), yellow(5), magenta(6), aqua(7), white(8) }
+
+LockStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Represents the status of the lock"
+    SYNTAX      INTEGER { unlock(1), lock(2) }
+
+AisleLocation ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Represents the location side of the cabinet."
+    SYNTAX      INTEGER { cold(1), hot(2), both(3) }
+
+AisleSwitch ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Represents the aisle switch on the handle to describe where the handle is physically located."
+    SYNTAX      INTEGER { cold(1), hot(2) }
+
+--
+-- Panduit Common Access Controled object identifiers
+--
+panduitAccessControlConfiguration    OBJECT IDENTIFIER   ::= { panduitAccessControl 1 }
+panduitAccessControlHandle           OBJECT IDENTIFIER   ::= { panduitAccessControl 2 }
+panduitAccessControlUser             OBJECT IDENTIFIER   ::= { panduitAccessControl 3 }
+panduitAccessControlConformance      OBJECT IDENTIFIER   ::= { panduitAccessControl 4 }
+panduitAccessControlAlarmDescriptions  OBJECT IDENTIFIER   ::= { panduitAccessControl 5 }
+
+-- ***********************************************************************
+--  panduitAccessControlConfiguration
+-- ***********************************************************************
+panduitAutoLockTime OBJECT-TYPE
+SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The time the electronic lock will automatically relock. Range 0 to 999 seconds."
+    ::= { panduitAccessControlConfiguration 1 }
+
+panduitDoorOpenTime OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The time before the status LED will indicate the door has been open too long. Range 0 to 999 seconds."
+    ::= { panduitAccessControlConfiguration 2 }
+
+panduitMaxDoorOpenTime OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Door Open Time in seconds, Value rangex 0-32400 seconds,
+         a critical alarm will be raised if door is left open past this time"
+    ::= { panduitAccessControlConfiguration 3 }
+
+panduitACUserPinLength OBJECT-TYPE
+    SYNTAX Integer32
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Rack Access User PIN Length, value ranges 1-16"
+    ::= { panduitAccessControlConfiguration 4 }
+
+panduitACUserPinMode OBJECT-TYPE
+    SYNTAX PinMode
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Setting if the user pins are visible."
+    ::= { panduitAccessControlConfiguration 5 }
+
+panduitAisleControl OBJECT-TYPE
+    SYNTAX AisleControl
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Rack Access Aisle Control setting,
+         when set to standalone each aisle will be controlled separately,
+         when set to combined each aisle will be controlled together."
+    ::= { panduitAccessControlConfiguration 6 }
+
+panduitBeaconFuncControl  OBJECT-TYPE
+    SYNTAX BeaconFunction
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Beacon Function Control. Locate will flash the color of the panduitBeaconColorControl.
+         When set to standby, the beacon will either be the color of panduitBeaconColorControl
+         or will report the alarm condition."
+    ::= { panduitAccessControlConfiguration 7 }
+
+panduitBeaconColorControl  OBJECT-TYPE
+    SYNTAX BeaconColor
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Color of beacon when not in an alarm condition"
+    ::= { panduitAccessControlConfiguration 8 }
+
+-- ***********************************************************************
+--  panduitAccessControlHandle
+-- ***********************************************************************
+panduitAccessControlHandleTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitAccessControlHandleTableEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The access control handle information."
+    ::= { panduitAccessControlHandle 1 }
+
+panduitAccessControlHandleTableEntry OBJECT-TYPE
+    SYNTAX PanduitAccessControlHandleTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The access control handle information table"
+    INDEX { panduitPduIndex, panduitHandleIndex }
+    ::= { panduitAccessControlHandleTable 1 }
+
+PanduitAccessControlHandleTableEntry ::= SEQUENCE
+    {
+        panduitHandleIndex                    Integer32,
+        panduitHandleRowStatus                RowStatus,
+        panduitHandleAisle                    INTEGER,
+        panduitHandleFirmwareMotorVersion     DisplayString,
+        panduitHandleFirmwareReaderVersion    DisplayString,
+        panduitHandleHardwareVersion          DisplayString,
+        panduitHandleSerialNumber             DisplayString,
+        panduitHandleElectronicLockOp         INTEGER,
+        panduitHandleMechanicalLockStatus     INTEGER
+     }
+
+panduitHandleIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..2)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The index of the handle table entry"
+    ::= { panduitAccessControlHandleTableEntry 1 }
+
+panduitHandleRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+        of rows in the table for a handle that no longer exist."
+    ::= { panduitAccessControlHandleTableEntry 2 }
+
+panduitHandleAisle OBJECT-TYPE
+    SYNTAX AisleSwitch
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Aisle location of the handle. "
+    ::= { panduitAccessControlHandleTableEntry 3 }
+
+panduitHandleFirmwareMotorVersion OBJECT-TYPE
+    SYNTAX DisplayString (SIZE (0..63))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The firmware revision level of the handle's motor"
+    ::= { panduitAccessControlHandleTableEntry 4 }
+
+panduitHandleFirmwareReaderVersion OBJECT-TYPE
+    SYNTAX DisplayString (SIZE (0..63))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The firmware revision level of the handle's reader"
+    ::= { panduitAccessControlHandleTableEntry 5 }
+
+panduitHandleHardwareVersion OBJECT-TYPE
+    SYNTAX DisplayString (SIZE (0..63))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The hardware revision level of the handle"
+    ::= { panduitAccessControlHandleTableEntry 6 }
+
+panduitHandleSerialNumber OBJECT-TYPE
+    SYNTAX DisplayString (SIZE (0..63))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The serial number of the handle"
+    ::= { panduitAccessControlHandleTableEntry 7 }
+
+panduitHandleElectronicLockOp OBJECT-TYPE
+    SYNTAX LockStatus
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Handle's electronic control and status"
+    ::= { panduitAccessControlHandleTableEntry 8 }
+
+panduitHandleMechanicalLockStatus OBJECT-TYPE
+    SYNTAX LockStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Handle's mechanical status"
+    ::= { panduitAccessControlHandleTableEntry 9 }
+
+-- ***********************************************************************
+--  panduitAccessControlUser
+-- ***********************************************************************
+panduitAccessControlNextUser OBJECT-TYPE
+    SYNTAX Integer32 (-1|1..200)
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The index of the next free access control user. If no access control user
+         is available, -1 is returned."
+    ::= { panduitAccessControlUser 1 }
+
+panduitAccessControlUserTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitAccessControlUserTableEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The access control User information."
+    ::= { panduitAccessControlUser 2 }
+
+panduitAccessControlUserTableEntry OBJECT-TYPE
+    SYNTAX PanduitAccessControlUserTableEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The access control User information table"
+    INDEX { panduitAcUserIndex }
+    ::= { panduitAccessControlUserTable 1 }
+
+PanduitAccessControlUserTableEntry ::= SEQUENCE
+    {
+        panduitAcUserIndex                   Integer32,
+        panduitAcUserRowStatus               RowStatus,
+        panduitAcUserName                    DisplayString,
+        panduitAcUserCardId                  DisplayString,
+        panduitAcUserPin                     DisplayString,
+        panduitAcUserAisle                   INTEGER,
+        panduitAcUserTempUser                INTEGER,
+        panduitAcUserStartTime               DateAndTime,
+        panduitAcUserExpireTime              DateAndTime,
+        panduitAcUserLastAccessTimestamp     DateAndTime
+     }
+
+panduitAcUserIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..200)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The index of the access control user table entry"
+    ::= { panduitAccessControlUserTableEntry 1 }
+
+panduitAcUserRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), notInService(2), notReady(3), createAndWait(5), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage add and delete users.
+         createAndWait(5) will add the row to the table.
+         destroy(6) will remove the row from the table.
+         notReady(3) denotes the user has been added but not active.
+         notInService(2) denote the user is entered but able to access the cabinet.
+         active(1) denote the user is active and will access the cabinet."
+    ::= { panduitAccessControlUserTableEntry 2 }
+
+panduitAcUserName OBJECT-TYPE
+    SYNTAX DisplayString
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The user name of the access control user."
+    ::= { panduitAccessControlUserTableEntry 3 }
+
+panduitAcUserCardId OBJECT-TYPE
+    SYNTAX DisplayString
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The access control User card ID"
+    ::= { panduitAccessControlUserTableEntry 4 }
+
+panduitAcUserPin OBJECT-TYPE
+    SYNTAX DisplayString
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The access control User keypad PIN. If the pin mode is hide, '********' will be returned"
+    ::= { panduitAccessControlUserTableEntry 5 }
+
+panduitAcUserAisle OBJECT-TYPE
+    SYNTAX AisleLocation
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Aisle that is authorized for the access control user"
+    ::= { panduitAccessControlUserTableEntry 6 }
+
+panduitAcUserTempUser OBJECT-TYPE
+    SYNTAX TruthValue
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "(1) Indicates that the access control user is a temporary access, (2) means they are a permanment user"
+    ::= { panduitAccessControlUserTableEntry 7 }
+
+panduitAcUserStartTime OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates the start date and time the temporary access control user is given access"
+    ::= { panduitAccessControlUserTableEntry 8 }
+
+panduitAcUserExpireTime OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates the date and time when the temporary access control user card will expire"
+    ::= { panduitAccessControlUserTableEntry 9 }
+
+panduitAcUserLastAccessTimestamp OBJECT-TYPE
+    SYNTAX DateAndTime
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Indicates the date and time of last accessed the cabinet."
+    ::= { panduitAccessControlUserTableEntry 10 }
+
+--
+-- Conformance
+--
+panduitAccessControlCompliances   OBJECT IDENTIFIER ::= { panduitAccessControlConformance 1 }
+panduitAccessControlGroups        OBJECT IDENTIFIER ::= { panduitAccessControlConformance 2 }
+
+panduitAccessControlFullCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION "Compilance statement"
+    MODULE
+        MANDATORY-GROUPS {
+            panduitAccessControlConfigurationGroup,
+            panduitAccessControlHandleGroup,
+            panduitAccessControlUserGroup }
+    ::= { panduitAccessControlCompliances 1 }
+
+
+panduitAccessControlConfigurationGroup OBJECT-GROUP
+    OBJECTS {
+        panduitAutoLockTime,
+        panduitDoorOpenTime,
+        panduitMaxDoorOpenTime,
+        panduitACUserPinLength,
+        panduitACUserPinMode,
+        panduitAisleControl,
+        panduitBeaconFuncControl,
+        panduitBeaconColorControl
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitAccessControlConfigurationGroup defines objects
+         that are are common to rack access configuration in the system"
+    ::= { panduitAccessControlGroups 1 }
+
+panduitAccessControlHandleGroup OBJECT-GROUP
+    OBJECTS {
+        panduitHandleRowStatus,
+        panduitHandleAisle,
+        panduitHandleFirmwareMotorVersion,
+        panduitHandleFirmwareReaderVersion,
+        panduitHandleHardwareVersion,
+        panduitHandleSerialNumber,
+        panduitHandleElectronicLockOp,
+        panduitHandleMechanicalLockStatus
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitAccessControlHandleGroup defines objects
+         that are are common to handle configuration in the system"
+    ::= { panduitAccessControlGroups 2 }
+
+panduitAccessControlUserGroup OBJECT-GROUP
+    OBJECTS {
+        panduitAccessControlNextUser,
+        panduitAcUserRowStatus,
+        panduitAcUserName,
+        panduitAcUserCardId,
+        panduitAcUserPin,
+        panduitAcUserAisle,
+        panduitAcUserTempUser,
+        panduitAcUserStartTime,
+        panduitAcUserExpireTime,
+        panduitAcUserLastAccessTimestamp
+     }
+
+    STATUS current
+    DESCRIPTION
+        "The panduitAccessControlUserGroup defines objects
+         that are are common to access control users in the system"
+    ::= { panduitAccessControlGroups 3 }
+
+--
+-- AlarmDescriptions
+--
+panduitAccessControlAlarmRemoteUnlock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was unlocked by remote control."
+    ::= { panduitAccessControlAlarmDescriptions 1 }
+
+panduitAccessControlAlarmRemoteLock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was locked by remote control."
+    ::= { panduitAccessControlAlarmDescriptions 2 }
+
+panduitAccessControlAlarmKeyUnlock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was mechanically Unlocked."
+    ::= { panduitAccessControlAlarmDescriptions 3 }
+
+panduitAccessControlAlarmKeyLock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was mechanically locked."
+    ::= { panduitAccessControlAlarmDescriptions 4 }
+
+panduitAccessControlAlarmCardUnlock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was unlocked with swipe card."
+    ::= { panduitAccessControlAlarmDescriptions 5 }
+
+panduitAccessControlAlarmCardLock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was locked with swipe card."
+    ::= { panduitAccessControlAlarmDescriptions 6 }
+
+panduitAccessControlAlarmCardUnauth OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was swiped by non-authorized card."
+    ::= { panduitAccessControlAlarmDescriptions 7 }
+
+panduitAccessControlAlarmPinUnlock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was unlocked by PIN."
+    ::= { panduitAccessControlAlarmDescriptions 8 }
+
+panduitAccessControlAlarmPinUnauth OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was accessed by non-authorized PIN."
+    ::= { panduitAccessControlAlarmDescriptions 9 }
+
+panduitAccessControlAlarmAuthDualUnlock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was unlocked with dual authentication."
+    ::= { panduitAccessControlAlarmDescriptions 10 }
+
+panduitAccessControlAlarmAuthDualLock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was locked with dual authentication."
+    ::= { panduitAccessControlAlarmDescriptions 11 }
+
+panduitAccessControlAlarmAutoLock OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was locked automatically."
+    ::= { panduitAccessControlAlarmDescriptions 12 }
+
+panduitAccessControlAlarmDoorOpenTimeout OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was left open for more than a configurable time."
+    ::= { panduitAccessControlAlarmDescriptions 13 }
+
+panduitAccessControlAlarmMaxDoorOpenTimeout OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "The security lock was left open for more than a configurable maximum time."
+    ::= { panduitAccessControlAlarmDescriptions 14 }
+
+panduitAccessControlAlarmUserAdd OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A rack access user was added to the security handle."
+    ::= { panduitAccessControlAlarmDescriptions 15 }
+
+panduitAccessControlAlarmUserRemove OBJECT-IDENTITY
+    STATUS     current
+    DESCRIPTION
+        "A rack access user was deleted from the security handle."
+    ::= { panduitAccessControlAlarmDescriptions 16 }
+--
+-- Textual Conventions
+--
+Temperature ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for Temperature in 0.1 units specified in TemperatureUnits"
+    SYNTAX      Integer32
+
+Humidity ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for Humidity in 0.1 %RH."
+    SYNTAX      Integer32
+
+AnalogThreshold ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d-1"
+    STATUS current
+    DESCRIPTION "The values for The analog threshold value in 0.1 units. Could be temperature degrees or relative humidity precent."
+    SYNTAX      Integer32
+
+ContactState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Contact sensor state."
+    SYNTAX      INTEGER { open(1), close(2) }
+
+WaterContactState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION "Water sensor state."
+    SYNTAX      INTEGER { noLeak(1), leak(2) }
+
+TemperatureUnits ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The values for TemperatureUnits"
+    SYNTAX      INTEGER { celsius(1), fahrenheit(2) }
+
+SensorStatus ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "The values for SensorStatus"
+    SYNTAX      INTEGER { notpresent(1), ok(2), warning(3), critical(4), uploading(5), activating(6) }
+
+OutputAccType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "Type of Output Device"
+    SYNTAX      INTEGER { lightbar(1) }
+
+OutputAccState ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION "State of accessory"
+    SYNTAX      INTEGER { off(1), on(2), auto(3) }
+
+--
+-- panduit Monitored Managed object identifiers
+--
+-- ***********************************************************************
+--  panduitSensor
+-- ***********************************************************************
+panduitTemperatureUnits OBJECT-TYPE
+    SYNTAX TemperatureUnits
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The temperature units."
+    ::= { panduitSensor 1 }
+
+panduitSensorEnvTable   OBJECT IDENTIFIER ::= { panduitSensor 2 }
+panduitSensorSecurityTable      OBJECT IDENTIFIER ::= { panduitSensor 3 }
+panduitSensorAlarmDescriptions  OBJECT IDENTIFIER ::= { panduitSensor 4 }
+panduitSensorConformance        OBJECT IDENTIFIER ::= { panduitSensor 5 }
+panduitSensorOutputAccTable     OBJECT IDENTIFIER ::= { panduitSensor 6 }
+
+-- ***********************************************************************
+--  panduitSensorEnvTemp
+-- ***********************************************************************
+panduitSensorEnvTempTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitSensorEnvTempEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The temperature sensor information table."
+    ::= { panduitSensorEnvTable 1 }
+
+panduitSensorEnvTempEntry OBJECT-TYPE
+    SYNTAX PanduitSensorEnvTempEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The temperature sensor information table"
+    INDEX { panduitPduIndex, panduitTemperatureIndex }
+    ::= { panduitSensorEnvTempTable 1 }
+
+PanduitSensorEnvTempEntry ::= SEQUENCE {
+        panduitTemperatureIndex                Integer32,
+        panduitTemperatureName                 DisplayString,
+        panduitTemperatureSerialNum            DisplayString,
+        panduitTemperatureStatus               SensorStatus,
+        panduitTemperatureValue                Temperature,
+        panduitTemperatureValueUnits           DisplayString,
+        panduitTemperatureRowStatus            RowStatus,
+        panduitTemperatureHCL                  AnalogThreshold,
+        panduitTemperatureHCLEnable            EnabledState,
+        panduitTemperatureHCLStatus            ActiveStatus,
+        panduitTemperatureHWL                  AnalogThreshold,
+        panduitTemperatureHWLEnable            EnabledState,
+        panduitTemperatureHWLStatus            ActiveStatus,
+        panduitTemperatureLCL                  AnalogThreshold,
+        panduitTemperatureLCLEnable            EnabledState,
+        panduitTemperatureLCLStatus            ActiveStatus,
+        panduitTemperatureLWL                  AnalogThreshold,
+        panduitTemperatureLWLEnable            EnabledState,
+        panduitTemperatureLWLStatus            ActiveStatus
+    }
+
+panduitTemperatureIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..6)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The sensor index"
+    ::= { panduitSensorEnvTempEntry 1 }
+
+panduitTemperatureName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor name"
+    ::= { panduitSensorEnvTempEntry 2 }
+
+panduitTemperatureSerialNum OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor serial number"
+    ::= { panduitSensorEnvTempEntry 3 }
+
+panduitTemperatureStatus OBJECT-TYPE
+    SYNTAX SensorStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor status. Valid values  notpresent(1), ok(2), warning(3), critical(4)"
+    ::= { panduitSensorEnvTempEntry 4 }
+
+panduitTemperatureValue OBJECT-TYPE
+    SYNTAX Temperature
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The values of the temperature in 0.1 units"
+    ::= { panduitSensorEnvTempEntry 5 }
+
+panduitTemperatureValueUnits OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..8))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor value units"
+    ::= { panduitSensorEnvTempEntry 6 }
+
+panduitTemperatureRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+        of rows in the table for sensors that no longer exist."
+    ::= { panduitSensorEnvTempEntry 7 }
+
+panduitTemperatureHCL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's high critical alarm value"
+    ::= { panduitSensorEnvTempEntry 8 }
+
+panduitTemperatureHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The high critical alarm enabled."
+    ::= { panduitSensorEnvTempEntry 9 }
+
+panduitTemperatureHCLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The high critical alarm status."
+    ::= { panduitSensorEnvTempEntry 10 }
+
+panduitTemperatureHWL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's high warning alarm level"
+    ::= { panduitSensorEnvTempEntry 11 }
+
+panduitTemperatureHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The high warning alarm enabled."
+    ::= { panduitSensorEnvTempEntry 12 }
+
+panduitTemperatureHWLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The high warning alarm status."
+    ::= { panduitSensorEnvTempEntry 13 }
+
+panduitTemperatureLCL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's low critical alarm level"
+    ::= { panduitSensorEnvTempEntry 14 }
+
+panduitTemperatureLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The low critical alarm enabled."
+    ::= { panduitSensorEnvTempEntry 15 }
+
+panduitTemperatureLCLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The low critical alarm status."
+    ::= { panduitSensorEnvTempEntry 16 }
+
+panduitTemperatureLWL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's low warning alarm level"
+    ::= { panduitSensorEnvTempEntry 17 }
+
+panduitTemperatureLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The low warning alarm enabled."
+    ::= { panduitSensorEnvTempEntry 18 }
+
+panduitTemperatureLWLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The low warning alarm status."
+    ::= { panduitSensorEnvTempEntry 19 }
+
+-- ***********************************************************************
+--  panduitSensorEnvHumidity
+-- ***********************************************************************
+panduitSensorEnvHumidityTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitSensorEnvHumidityEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The humidity sensor information."
+    ::= { panduitSensorEnvTable 2 }
+
+panduitSensorEnvHumidityEntry OBJECT-TYPE
+    SYNTAX PanduitSensorEnvHumidityEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The humidity sensor information table"
+    INDEX { panduitPduIndex, panduitHumidityIndex }
+    ::= { panduitSensorEnvHumidityTable 1 }
+
+PanduitSensorEnvHumidityEntry ::= SEQUENCE {
+        panduitHumidityIndex                Integer32,
+        panduitHumidityName                 DisplayString,
+        panduitHumiditySerialNum            DisplayString,
+        panduitHumidityStatus               SensorStatus,
+        panduitHumidityValue                Humidity,
+        panduitHumidityValueUnits           DisplayString,
+        panduitHumidityRowStatus            RowStatus,
+        panduitHumidityHCL         AnalogThreshold,
+        panduitHumidityHCLEnable   EnabledState,
+        panduitHumidityHCLStatus   ActiveStatus,
+        panduitHumidityHWL         AnalogThreshold,
+        panduitHumidityHWLEnable   EnabledState,
+        panduitHumidityHWLStatus   ActiveStatus,
+        panduitHumidityLCL         AnalogThreshold,
+        panduitHumidityLCLEnable   EnabledState,
+        panduitHumidityLCLStatus   ActiveStatus,
+        panduitHumidityLWL         AnalogThreshold,
+        panduitHumidityLWLEnable   EnabledState,
+        panduitHumidityLWLStatus   ActiveStatus
+    }
+
+panduitHumidityIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..2)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The sensor index"
+    ::= { panduitSensorEnvHumidityEntry 1 }
+
+panduitHumidityName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor name"
+    ::= { panduitSensorEnvHumidityEntry 2 }
+
+panduitHumiditySerialNum OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor serial number"
+    ::= { panduitSensorEnvHumidityEntry 3 }
+
+panduitHumidityStatus OBJECT-TYPE
+    SYNTAX SensorStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor status. Valid values  notpresent(1), ok(2), warning(3), critical(4)"
+    ::= { panduitSensorEnvHumidityEntry 4 }
+
+panduitHumidityValue OBJECT-TYPE
+    SYNTAX Humidity
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor sensor value in 0.1%RH"
+    ::= { panduitSensorEnvHumidityEntry 5 }
+
+panduitHumidityValueUnits OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..8))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor sensor value units"
+    ::= { panduitSensorEnvHumidityEntry 6 }
+
+panduitHumidityRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+         of rows in the table for sensors that no longer exist."
+    ::= { panduitSensorEnvHumidityEntry 7 }
+
+panduitHumidityHCL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's high critical alarm level"
+    ::= { panduitSensorEnvHumidityEntry 8 }
+
+panduitHumidityHCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The high critical alarm enabled."
+    ::= { panduitSensorEnvHumidityEntry 9 }
+
+panduitHumidityHCLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The high critical alarm status."
+    ::= { panduitSensorEnvHumidityEntry 10 }
+
+panduitHumidityHWL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's high warning alarm level"
+    ::= { panduitSensorEnvHumidityEntry 11 }
+
+panduitHumidityHWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The high warning alarm enabled."
+    ::= { panduitSensorEnvHumidityEntry 12 }
+
+panduitHumidityHWLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The high warning alarm status."
+    ::= { panduitSensorEnvHumidityEntry 13 }
+
+panduitHumidityLCL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's low critical alarm level"
+    ::= { panduitSensorEnvHumidityEntry 14 }
+
+panduitHumidityLCLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The low critical alarm enabled."
+    ::= { panduitSensorEnvHumidityEntry 15 }
+
+panduitHumidityLCLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The low critical alarm status."
+    ::= { panduitSensorEnvHumidityEntry 16 }
+
+panduitHumidityLWL OBJECT-TYPE
+    SYNTAX AnalogThreshold (0..1500)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor's low warning alarm level"
+    ::= { panduitSensorEnvHumidityEntry 17 }
+
+panduitHumidityLWLEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The low warning alarm enabled."
+    ::= { panduitSensorEnvHumidityEntry 18 }
+
+panduitHumidityLWLStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The low warning alarm status."
+    ::= { panduitSensorEnvHumidityEntry 19 }
+
+-- ***********************************************************************
+--  panduitSensorEnvSpot
+-- ***********************************************************************
+panduitSensorEnvSpotTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitSensorEnvSpotEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The spot sensor information."
+    ::= { panduitSensorEnvTable 3 }
+
+panduitSensorEnvSpotEntry OBJECT-TYPE
+    SYNTAX PanduitSensorEnvSpotEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The spot sensor information table"
+    INDEX { panduitPduIndex, panduitSpotSensorIndex }
+    ::= { panduitSensorEnvSpotTable 1 }
+
+PanduitSensorEnvSpotEntry ::= SEQUENCE {
+        panduitSpotSensorIndex                Integer32,
+        panduitSpotSensorName                 DisplayString,
+        panduitSpotSensorSerialNum            DisplayString,
+        panduitSpotSensorStatus               SensorStatus,
+        panduitSpotSensorValue                WaterContactState,
+        panduitSpotSensorRowStatus            RowStatus,
+        panduitSpotSensorAlarmEnable          EnabledState,
+        panduitSpotSensorAlarmLevel           AlarmSeverityLevel,
+        panduitSpotSensorAlarmStatus          ActiveStatus
+    }
+
+panduitSpotSensorIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..2)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The sensor index"
+    ::= { panduitSensorEnvSpotEntry 1 }
+
+panduitSpotSensorName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor name"
+    ::= { panduitSensorEnvSpotEntry 2 }
+
+panduitSpotSensorSerialNum OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor serial number"
+    ::= { panduitSensorEnvSpotEntry 3 }
+
+panduitSpotSensorStatus OBJECT-TYPE
+    SYNTAX SensorStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor status. Valid values  notpresent(1), ok(2), warning(3), critical(4)"
+    ::= { panduitSensorEnvSpotEntry 4 }
+
+panduitSpotSensorValue OBJECT-TYPE
+    SYNTAX WaterContactState
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor sensor value. no-leak(1) or leak(2)"
+    ::= { panduitSensorEnvSpotEntry 5 }
+
+panduitSpotSensorRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+         of rows in the table for sensors that no longer exist."
+    ::= { panduitSensorEnvSpotEntry 6 }
+
+panduitSpotSensorAlarmEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The reporting of the alarm is enabled."
+    ::= { panduitSensorEnvSpotEntry 7 }
+
+panduitSpotSensorAlarmLevel OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The configured alarm severity level {informational(2), warning(3), critical(6)}."
+    ::= { panduitSensorEnvSpotEntry 8 }
+
+panduitSpotSensorAlarmStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The alarm status of the sensor."
+    ::= { panduitSensorEnvSpotEntry 9 }
+
+-- ***********************************************************************
+--  panduitSensorEnvRope
+-- ***********************************************************************
+panduitSensorEnvRopeTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitSensorEnvRopeEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The rope sensor information."
+    ::= { panduitSensorEnvTable 4 }
+
+panduitSensorEnvRopeEntry OBJECT-TYPE
+    SYNTAX PanduitSensorEnvRopeEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The rope sensor information table"
+    INDEX { panduitPduIndex, panduitRopeSensorIndex }
+    ::= { panduitSensorEnvRopeTable 1 }
+
+PanduitSensorEnvRopeEntry ::= SEQUENCE {
+        panduitRopeSensorIndex                Integer32,
+        panduitRopeSensorName                 DisplayString,
+        panduitRopeSensorSerialNum            DisplayString,
+        panduitRopeSensorStatus               SensorStatus,
+        panduitRopeSensorValue                WaterContactState,
+        panduitRopeSensorRowStatus            RowStatus,
+        panduitRopeSensorAlarmEnable          EnabledState,
+        panduitRopeSensorAlarmLevel           AlarmSeverityLevel,
+        panduitRopeSensorAlarmStatus          ActiveStatus
+    }
+
+panduitRopeSensorIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..2)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The sensor index"
+    ::= { panduitSensorEnvRopeEntry 1 }
+
+panduitRopeSensorName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor name"
+    ::= { panduitSensorEnvRopeEntry 2 }
+
+panduitRopeSensorSerialNum OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor serial number"
+    ::= { panduitSensorEnvRopeEntry 3 }
+
+panduitRopeSensorStatus OBJECT-TYPE
+    SYNTAX SensorStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor status. Valid values  notpresent(1), ok(2), warning(3), critical(4)"
+    ::= { panduitSensorEnvRopeEntry 4 }
+
+panduitRopeSensorValue OBJECT-TYPE
+    SYNTAX WaterContactState
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor sensor value. no-leak(1) or leak(2)"
+    ::= { panduitSensorEnvRopeEntry 5 }
+
+panduitRopeSensorRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+         of rows in the table for sensors that no longer exist."
+    ::= { panduitSensorEnvRopeEntry 6 }
+
+panduitRopeSensorAlarmEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The reporting of an alarm is enabled."
+    ::= { panduitSensorEnvRopeEntry 7 }
+
+panduitRopeSensorAlarmLevel OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The configured alarm severity level {informational(2), warning(3), critical(6)}."
+    ::= { panduitSensorEnvRopeEntry 8 }
+
+panduitRopeSensorAlarmStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The alarm status of the sensor."
+    ::= { panduitSensorEnvRopeEntry 9 }
+
+-- ***********************************************************************
+--  panduitSensorDoorTable
+-- ***********************************************************************
+panduitSensorDoorTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitSensorDoorEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The door sensor information."
+    ::= { panduitSensorSecurityTable 1 }
+
+panduitSensorDoorEntry OBJECT-TYPE
+    SYNTAX PanduitSensorDoorEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The door sensor information table"
+    INDEX { panduitPduIndex, panduitDoorSensorIndex }
+    ::= { panduitSensorDoorTable 1 }
+
+PanduitSensorDoorEntry ::= SEQUENCE {
+        panduitDoorSensorIndex                Integer32,
+        panduitDoorSensorName                 DisplayString,
+        panduitDoorSensorSerialNum            DisplayString,
+        panduitDoorSensorStatus               SensorStatus,
+        panduitDoorSensorValue                ContactState,
+        panduitDoorSensorRowStatus            RowStatus,
+        panduitDoorSensorAlarmEnable          EnabledState,
+        panduitDoorSensorAlarmLevel           AlarmSeverityLevel,
+        panduitDoorSensorAlarmStatus          ActiveStatus
+    }
+
+panduitDoorSensorIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..8)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The sensor index"
+    ::= { panduitSensorDoorEntry 1 }
+
+panduitDoorSensorName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor name"
+    ::= { panduitSensorDoorEntry 2 }
+
+panduitDoorSensorSerialNum OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor serial number"
+    ::= { panduitSensorDoorEntry 3 }
+
+panduitDoorSensorStatus OBJECT-TYPE
+    SYNTAX SensorStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor status. Valid values  notpresent(1), ok(2), warning(3), critical(4)"
+    ::= { panduitSensorDoorEntry 4 }
+
+panduitDoorSensorValue OBJECT-TYPE
+    SYNTAX ContactState
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor sensor value. open(1) or close(2)"
+    ::= { panduitSensorDoorEntry 5 }
+
+panduitDoorSensorRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+         of rows in the table for sensors that no longer exist."
+    ::= { panduitSensorDoorEntry 6 }
+
+panduitDoorSensorAlarmEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The reporting of an alarm is enabled."
+    ::= { panduitSensorDoorEntry 7 }
+
+panduitDoorSensorAlarmLevel OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The configured alarm severity level {informational(2), warning(3), critical(6)}."
+    ::= { panduitSensorDoorEntry 8 }
+
+panduitDoorSensorAlarmStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The alarm status of the sensor."
+    ::= { panduitSensorDoorEntry 9 }
+
+-- ***********************************************************************
+--  panduitSensorContact
+-- ***********************************************************************
+panduitSensorContactTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitSensorContactEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The dry contact sensor information."
+    ::= { panduitSensorSecurityTable 2 }
+
+panduitSensorContactEntry OBJECT-TYPE
+    SYNTAX PanduitSensorContactEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The dry contact sensor information table"
+    INDEX { panduitPduIndex, panduitContactSensorIndex }
+    ::= { panduitSensorContactTable 1 }
+
+PanduitSensorContactEntry ::= SEQUENCE {
+        panduitContactSensorIndex                Integer32,
+        panduitContactSensorName                 DisplayString,
+        panduitContactSensorSerialNum            DisplayString,
+        panduitContactSensorStatus               SensorStatus,
+        panduitContactSensorValue                ContactState,
+        panduitContactSensorRowStatus            RowStatus,
+        panduitContactSensorAlarmEnable          EnabledState,
+        panduitContactSensorAlarmLevel           AlarmSeverityLevel,
+        panduitContactSensorAlarmStatus          ActiveStatus,
+        panduitContactSensorAlarmState           ContactState
+    }
+
+panduitContactSensorIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..4)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The sensor index"
+    ::= { panduitSensorContactEntry 1 }
+
+panduitContactSensorName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The sensor name"
+    ::= { panduitSensorContactEntry 2 }
+
+panduitContactSensorSerialNum OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor serial number"
+    ::= { panduitSensorContactEntry 3 }
+
+panduitContactSensorStatus OBJECT-TYPE
+    SYNTAX SensorStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor status. Valid values  notpresent(1), ok(2), warning(3), critical(4)"
+    ::= { panduitSensorContactEntry 4 }
+
+panduitContactSensorValue OBJECT-TYPE
+    SYNTAX ContactState
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The sensor sensor value. open(1) or close(2)"
+    ::= { panduitSensorContactEntry 5 }
+
+panduitContactSensorRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+         of rows in the table for sensors that no longer exist."
+    ::= { panduitSensorContactEntry 6 }
+
+panduitContactSensorAlarmEnable OBJECT-TYPE
+    SYNTAX EnabledState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The reporting of an alarm is enabled."
+    ::= { panduitSensorContactEntry 7 }
+
+panduitContactSensorAlarmLevel OBJECT-TYPE
+    SYNTAX AlarmSeverityLevel
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The configured alarm severity level {informational(2), warning(3), critical(6)}."
+    ::= { panduitSensorContactEntry 8 }
+
+panduitContactSensorAlarmStatus OBJECT-TYPE
+    SYNTAX ActiveStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The alarm status of the sensor."
+    ::= { panduitSensorContactEntry 9 }
+
+panduitContactSensorAlarmState OBJECT-TYPE
+    SYNTAX ContactState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The configured alarm state to considered the sensor in alarm."
+    ::= { panduitSensorContactEntry 10 }
+
+--
+-- Well known alarm conditions.
+--
+panduitSensorAlarmLostComm OBJECT-IDENTITY
+   STATUS     current
+   DESCRIPTION
+           "Sensor Lost Communication."
+   ::= { panduitSensorAlarmDescriptions  1 }
+
+panduitSensorAlarmPresent OBJECT-IDENTITY
+   STATUS     current
+   DESCRIPTION
+           "Sensor Added to System."
+   ::= { panduitSensorAlarmDescriptions  2 }
+
+panduitSensorAlarmThreshold OBJECT-IDENTITY
+   STATUS     current
+   DESCRIPTION
+           "Sensor detected a threshold crossing."
+   ::= { panduitSensorAlarmDescriptions  3 }
+
+panduitSensorAlarmInAlarm OBJECT-IDENTITY
+   STATUS     current
+   DESCRIPTION
+           "Binary Sensor detected alarm condition."
+   ::= { panduitSensorAlarmDescriptions  4 }
+
+-- ***********************************************************************
+--  panduitSensorOutputAcc
+-- ***********************************************************************
+panduitOutputAccDeviceTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF PanduitOutputAccDeviceEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        "The output device information table."
+    ::= { panduitSensorOutputAccTable 1 }
+
+panduitOutputAccDeviceEntry OBJECT-TYPE
+    SYNTAX PanduitOutputAccDeviceEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The output device information table"
+    INDEX { panduitPduIndex, panduitOutputAccIndex }
+    ::= { panduitOutputAccDeviceTable 1 }
+
+PanduitOutputAccDeviceEntry ::= SEQUENCE {
+        panduitOutputAccIndex                Integer32,
+        panduitOutputAccName                 DisplayString,
+        panduitOutputAccSerialNum            DisplayString,
+        panduitOutputAccType                 OutputAccType,
+        panduitOutputAccStatus               SensorStatus,
+        panduitOutputAccValue                OutputAccState,
+        panduitOutputAccControl              OutputAccState,
+        panduitOutputAccRowStatus            RowStatus
+    }
+
+panduitOutputAccIndex OBJECT-TYPE
+    SYNTAX Integer32 (1..6)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "The device index"
+    ::= { panduitOutputAccDeviceEntry 1 }
+
+panduitOutputAccName OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..32))
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The device name"
+    ::= { panduitOutputAccDeviceEntry 2 }
+
+panduitOutputAccSerialNum    OBJECT-TYPE
+    SYNTAX DisplayString (SIZE(0..22))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The device serial number"
+    ::= { panduitOutputAccDeviceEntry 3 }
+
+panduitOutputAccType OBJECT-TYPE
+    SYNTAX OutputAccType
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Type of Device. lightstrip(1), beacon(2), audible(3), relay(4)"
+    ::= { panduitOutputAccDeviceEntry 4 }
+
+panduitOutputAccStatus OBJECT-TYPE
+    SYNTAX SensorStatus
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Describes if the device is present or has any current alarms"
+    ::= { panduitOutputAccDeviceEntry 5 }
+
+panduitOutputAccValue OBJECT-TYPE
+    SYNTAX OutputAccState
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Is accessory on or off"
+    ::= { panduitOutputAccDeviceEntry 6 }
+
+panduitOutputAccControl OBJECT-TYPE
+    SYNTAX OutputAccState
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Control when accessory is on or off"
+    ::= { panduitOutputAccDeviceEntry 7 }
+
+panduitOutputAccRowStatus OBJECT-TYPE
+    SYNTAX RowStatus { active(1), destroy(6) }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The RowStatus is used to manage the deletion
+        of rows in the table for devices that no longer exist."
+    ::= { panduitOutputAccDeviceEntry 8 }
+
+
+--
+-- Conformance
+--
+panduitSensorCompliances   OBJECT IDENTIFIER       ::= { panduitSensorConformance 1 }
+panduitSensorGroups        OBJECT IDENTIFIER       ::= { panduitSensorConformance 2 }
+
+panduitFullCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The panduit Full Conformance compliances"
+    MODULE
+        MANDATORY-GROUPS {
+            panduitSensorEnvGroup,
+            panduitSensorSecurityGroup }
+    ::= { panduitSensorCompliances 1 }
+
+panduitStatusCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The panduit Conformance compliances"
+    MODULE
+        MANDATORY-GROUPS {
+            panduitSensorEnvGroup,
+            panduitSensorSecurityGroup,
+	    panduitSensorOutputGroup
+        }
+    ::= { panduitSensorCompliances 2 }
+
+panduitSensorEnvGroup OBJECT-GROUP
+    OBJECTS {
+            panduitTemperatureUnits,
+            panduitTemperatureName,
+            panduitTemperatureSerialNum,
+            panduitTemperatureStatus,
+            panduitTemperatureValue,
+            panduitTemperatureValueUnits,
+            panduitTemperatureRowStatus,
+            panduitTemperatureHCL,
+            panduitTemperatureHCLEnable,
+            panduitTemperatureHCLStatus,
+            panduitTemperatureHWL,
+            panduitTemperatureHWLEnable,
+            panduitTemperatureHWLStatus,
+            panduitTemperatureLCL,
+            panduitTemperatureLCLEnable,
+            panduitTemperatureLCLStatus,
+            panduitTemperatureLWL,
+            panduitTemperatureLWLEnable,
+            panduitTemperatureLWLStatus,
+            panduitHumidityName,
+            panduitHumiditySerialNum,
+            panduitHumidityStatus,
+            panduitHumidityValue,
+            panduitHumidityValueUnits,
+            panduitHumidityRowStatus,
+            panduitHumidityHCL,
+            panduitHumidityHCLEnable,
+            panduitHumidityHCLStatus,
+            panduitHumidityHWL,
+            panduitHumidityHWLEnable,
+            panduitHumidityHWLStatus,
+            panduitHumidityLCL,
+            panduitHumidityLCLEnable,
+            panduitHumidityLCLStatus,
+            panduitHumidityLWL,
+            panduitHumidityLWLEnable,
+            panduitHumidityLWLStatus,
+            panduitSpotSensorName,
+            panduitSpotSensorSerialNum,
+            panduitSpotSensorStatus,
+            panduitSpotSensorValue,
+            panduitSpotSensorRowStatus,
+            panduitSpotSensorAlarmEnable,
+            panduitSpotSensorAlarmLevel,
+            panduitSpotSensorAlarmStatus,
+            panduitRopeSensorName,
+            panduitRopeSensorSerialNum,
+            panduitRopeSensorStatus,
+            panduitRopeSensorValue,
+            panduitRopeSensorRowStatus,
+            panduitRopeSensorAlarmEnable,
+            panduitRopeSensorAlarmLevel,
+            panduitRopeSensorAlarmStatus
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitEnvGroup defines objects which are associated with
+         environment sensors information"
+    ::= { panduitSensorGroups 1 }
+
+panduitSensorSecurityGroup OBJECT-GROUP
+    OBJECTS {
+            panduitDoorSensorName,
+            panduitDoorSensorSerialNum,
+            panduitDoorSensorStatus,
+            panduitDoorSensorValue,
+            panduitDoorSensorRowStatus,
+            panduitDoorSensorAlarmEnable,
+            panduitDoorSensorAlarmLevel,
+            panduitDoorSensorAlarmStatus,
+            panduitContactSensorName,
+            panduitContactSensorSerialNum,
+            panduitContactSensorStatus,
+            panduitContactSensorValue,
+            panduitContactSensorRowStatus,
+            panduitContactSensorAlarmEnable,
+            panduitContactSensorAlarmLevel,
+            panduitContactSensorAlarmState,
+            panduitContactSensorAlarmStatus
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitSensorSecurity defines objects which are associated with
+         security sensors information"
+    ::= { panduitSensorGroups 2 }
+
+panduitSensorOutputGroup OBJECT-GROUP
+    OBJECTS {
+            panduitOutputAccName,
+            panduitOutputAccSerialNum,
+            panduitOutputAccType,
+            panduitOutputAccStatus,
+            panduitOutputAccValue,
+            panduitOutputAccControl,
+            panduitOutputAccRowStatus
+    }
+    STATUS current
+    DESCRIPTION
+        "The panduitSensorOutputGroup defines objects which are associated
+         with output type accessories"
+    ::= { panduitSensorGroups 3 }
+END
